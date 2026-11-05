@@ -46,6 +46,10 @@ async function registrarFuncionario(dados) {
         throw criarErro(409, "E-mail já cadastrado.");
     }
 
+    if (await authRepository.buscarPorCpf(cpf)) {
+        throw criarErro(409, "CPF já cadastrado.");
+    }
+
     const senhaHash = await bcrypt.hash(senha, SALT_ROUNDS);
 
     // eAdmin NÃO vem do body: quem se cadastra nunca nasce admin

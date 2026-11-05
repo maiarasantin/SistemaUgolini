@@ -29,7 +29,10 @@ async function login (req, res) {
 async function registrar(req, res) {
     try {
         const funcionario = await authService.registrarFuncionario(req.body);
-        return res.status(201).json({funcionario: funcionario});
+        return res.status(201).json({
+            mensagem: "Funcionário cadastrado com sucesso.",
+            funcionario: funcionario,
+        });
     } catch (erro) {
         return responderErro(res, erro);
     }
