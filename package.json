@@ -1,7 +1,7 @@
 {
   "name": "sistemaugolini",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "backend/index.js",
   "author": "Maiara <maiara.santin@estudante.uffs.edu.br>",
   "license": "MIT",
   "scripts": {
