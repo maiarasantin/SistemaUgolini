@@ -1,0 +1,10 @@
+/* Estilo mínimo: tira a margem padrão do navegador. */
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+}
+
+/* Cores das mensagens do formulário. */
+.error { color: #b00020; }
+.warning { color: #8a6d00; }
+.success { color: #1b5e20; }
