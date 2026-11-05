@@ -13,12 +13,19 @@ const Cliente = sequelize.define(
 
         nome: {
             type: DataTypes.STRING(150),
-            allowNull: false
+            allowNull: false,
+            field: "nome"
         },
 
-        telefone: {type: DataTypes.STRING(20)},
+        telefone: {
+            type: DataTypes.STRING(20),
+            field: "telefone"
+        },
 
-        email:    {type: DataTypes.STRING(150)},
+        email: {
+            type: DataTypes.STRING(150),
+            field: "email"
+        },
 
         tipoCliente: {
             type: DataTypes.STRING(20),
@@ -27,23 +34,40 @@ const Cliente = sequelize.define(
 
         cpf: {
             type: DataTypes.STRING(11),
-            unique: true
+            unique: true,
+            field: "cpf"
         },
 
         cnpj: {
             type: DataTypes.STRING(14),
-            unique: true
+            unique: true,
+            field: "cnpj"
         },
 
-        rua:        {type: DataTypes.STRING(150)},
+        rua: {
+            type: DataTypes.STRING(150),
+            field: "rua"
+        },
 
-        numero:     {type: DataTypes.STRING(10)},
+        numero: {
+            type: DataTypes.STRING(10),
+            field: "numero"
+        },
 
-        bairro:     {type: DataTypes.STRING(100)},
+        bairro: {
+            type: DataTypes.STRING(100),
+            field: "bairro"
+        },
+        
+        cep: {
+            type: DataTypes.STRING(8),
+            field: "cep"
+        },
 
-        cep:        {type: DataTypes.STRING(8)},
-
-        referencia: {type: DataTypes.TEXT}
+        referencia: {
+            type: DataTypes.TEXT,
+            field: "referencia"
+        }
     },
     {
         timestamps: false,
