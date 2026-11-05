@@ -1,29 +1,16 @@
-const database = require("./database");
-const express = require('express');
-
+require("dotenv").config();
+const express = require("express");
+const cors = require("cors");
+const authRouter = require("./Auth/auth.router");
 
 const app = express();
+const PORT = process.env.PORT || 3010;
 
-
+app.use(cors());
 app.use(express.json());
 
-const PORTA = 3000;
+app.use("/auth", authRouter);
 
-
-const produtosRouter = require('./Produtos/produtos-router')
-
-
-const clientesRouter = require('./Clientes/clientes-router')
-
-
-
-
-app.listen(PORTA, () => {
-  console.log(`Servidor rodando na porta ${PORTA}`);
+app.listen(PORT, () => {
+    console.log(`Servidor rodando em http://localhost:${PORT}`);
 });
-
-
-app.use('/api/produtos', produtosRouter);
-
-
-app.use('/api/clientes', clientesRouter);
