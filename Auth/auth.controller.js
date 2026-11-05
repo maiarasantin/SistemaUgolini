@@ -38,4 +38,24 @@ async function registrar(req, res) {
     }
 }
 
-module.exports = {login, registrar};
+
+
+// =====================================================================
+// perfil
+// Responde "quem sou eu?" para quem está logado (GET /auth/perfil).
+// Só roda depois que o requireJWTAuth aprovou o token.
+// =====================================================================
+async function perfil(req, res) {
+    // Tira da ficha do funcionário (req.user) só os campos que vamos mostrar.
+    // O req.user foi preenchido pelo requireJWTAuth.
+    // Repara que a senha NÃO é pega, então nunca sai na resposta.
+    const { id, nome, email, eAdmin } = req.user;
+    return res.status(200).json({
+        id,
+        nome,
+        email,
+        perfil: eAdmin ? "admin" : "vendedor",
+    });
+}
+
+module.exports = {login, registrar, perfil };
