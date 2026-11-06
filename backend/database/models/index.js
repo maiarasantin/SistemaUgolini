@@ -7,7 +7,7 @@ const ItemPedido = require("./item-pedido.model");
 const Pagamento = require("./pagamento.model");
 const Pedido = require("./pedido.model");
 const Produto = require("./produto.model");
-const SubCategoria = require("./subcategoria.model");
+const Subcategoria = require("./subcategoria.model");
 
 module.exports = {
     Categoria,
@@ -19,5 +19,5 @@ module.exports = {
     Pagamento,
     Pedido,
     Produto,
-    SubCategoria
+    Subcategoria
 };
