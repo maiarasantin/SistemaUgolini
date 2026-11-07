@@ -1,56 +1,59 @@
-// useState: guarda o que a pessoa digita e as mensagens da tela.
+import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
+import Alert from '@mui/material/Alert';
 import { useState } from "react";
-// axios: faz a chamada ao back (a URL base já foi configurada no App.jsx).
 import axios from "axios";
 
-// onLogin vem do App (por props). É a função que avisa "login deu certo".
+// onLogin  É a função que avisa "login deu certo".
 export default function Login({ onLogin }) {
-    // O que a pessoa digitou nos dois campos.
+    
     const [email, setEmail] = useState("");
     const [senha, setSenha] = useState("");
-    // Texto da mensagem na tela e o tipo dela (success, error, warning).
-    const [messageText, setMessageText] = useState("");
-    const [messageSeverity, setMessageSeverity] = useState("success");
+    const [textoMensagem, setTextoMensagem] = useState("");
+    const [tipoMensagem, setTipoMensagem] = useState("success");
 
     // Roda quando a pessoa clica em "Entrar".
     async function enviaLogin(event) {
-        // Impede o navegador de recarregar a página ao enviar o formulário.
+       
         event.preventDefault();
         try {
-            // Manda e-mail e senha pro back e ESPERA a resposta (await).
+            
             const response = await axios.post("/auth/login", { email, senha });
-            // Deu certo: guarda o token no navegador...
-            localStorage.setItem("token", response.data.token);
-            // ...e avisa o App que o login foi feito.
+            
+            localStorage.setItem("token", response.data.token); //Lê-se: “guarde, com o nome token, o token que o back me devolveu”.
+           
             onLogin();
         } catch (error) {
-            // Deu errado. Se o back respondeu com {erro: "..."}, mostra essa mensagem
-            // (ex.: "Credenciais inválidas"). O "?." evita quebrar se não houver resposta.
-            const mensagemDoBack = error.response?.data?.erro;
-            // Se o back nem respondeu (fora do ar), mostra uma mensagem amigável.
-            setMessageText(
-                mensagemDoBack || "Não foi possível conectar ao servidor. Tente novamente.",
-            );
-            setMessageSeverity("error");
-        }
+    
+            if (error.response) {
+        // o back respondeu com erro: mostra a mensagem dele
+        setTextoMensagem(error.response.data.erro);
+    } else {
+        // o back não respondeu: mensagem fixa
+        setTextoMensagem("Não foi possível conectar ao servidor. Tente novamente.");
+    }
+    setTipoMensagem("error");
+}
     }
 
     // Roda quando a pessoa clica em "Cancelar".
     function cancelaLogin() {
-        // Limpa os campos.
+       
         setEmail("");
         setSenha("");
-        // Mostra um aviso.
-        setMessageText("Login cancelado!");
-        setMessageSeverity("warning");
+        setTextoMensagem("Login cancelado!"); //GUARDA O TEXTO QUE A PESSOA VAI LER
+        setTipoMensagem("warning");   //GUARDA A ETIQUETA USADA PRA ESCOLHER A COR
     }
 
+    //o que aparece na tela
     return (
-        // onSubmit: ao enviar o formulário (Enter ou botão), chama enviaLogin.
-        <form onSubmit={enviaLogin}>
+
+
+    <div className="login-pagina">
+        <form className="login-form" onSubmit={enviaLogin}>
             <h1>Login</h1>
             <div>
-                <input
+               <input
                     required
                     type="email"
                     placeholder="E-mail"
@@ -69,13 +72,30 @@ export default function Login({ onLogin }) {
                 />
             </div>
             <div>
-                <button type="submit">Entrar</button>
-                <button type="button" onClick={cancelaLogin}>
-                    Cancelar
-                </button>
+            <Button type="submit" variant="contained" fullWidth 
+            sx={{
+                 mt: 2,
+                backgroundColor: "#2f5a45",
+        "       &:hover": { backgroundColor: "#264a39" },
+                }} >Entrar</Button>
+                <Button
+            type="button" variant="contained" fullWidth 
+    sx={{
+        mt: 2,
+         backgroundColor: "#5b9074",
+        "&:hover": { backgroundColor: "#3f7056" },
+    }}
+    onClick={cancelaLogin}
+>Cancelar</Button>
             </div>
-            {/* Só mostra o parágrafo se existir mensagem. A classe define a cor. */}
-            {messageText && <p className={messageSeverity}>{messageText}</p>}
+           {textoMensagem && (
+                <Alert severity={tipoMensagem} sx={{ mt: 2 }}>
+                     {textoMensagem}
+                 </Alert>
+)}
         </form>
-    );
+
+      </div>
+
+      );
 }
