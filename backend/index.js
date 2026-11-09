@@ -1,5 +1,6 @@
 // Lê o arquivo .env e deixa as variáveis disponíveis em process.env.
 require("dotenv").config();
+const clientesRouter = require("./Clientes/clientes.router");
 const express = require("express");
 const cors = require("cors");
 
@@ -32,6 +33,7 @@ configureJwtStrategy();
 app.use(passport.initialize());
 
 app.use("/auth", authRouter);
+app.use("/clientes", clientesRouter);
 
 app.listen(PORT, () => {
     console.log(`Servidor rodando em http://localhost:${PORT}`);
