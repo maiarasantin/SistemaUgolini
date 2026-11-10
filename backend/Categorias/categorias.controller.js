@@ -20,6 +20,16 @@ async function buscarPorId(req, res) {
     }
 }
 
+async function buscarPorNome(req, res) {
+    try{
+        const categoria = await categoriasService.buscarPorNome(req.body);
+        return res.status(200).json(categoria);
+    }catch (erro) {
+        console.log("Erro ao buscar categoria:", erro);
+        return res.status(500).json({ erro: erro.message });
+    }
+}
+
 async function criar(req, res) {
     try {
         const categoria = await categoriasService.criar(req.body);
@@ -55,6 +65,7 @@ async function deletar(req, res) {
 module.exports = {
     listar,
     buscarPorId,
+    buscarPorNome,
     criar,
     atualizar,
     deletar,

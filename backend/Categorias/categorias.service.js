@@ -1,3 +1,4 @@
+const { buscarPorNome } = require("./categorias.controller");
 const categoriasRepository = require("./categorias.repository");
 
 async function listar(){
@@ -6,6 +7,10 @@ async function listar(){
 
 async function buscarPorId(id){
     return categoriasRepository.buscarPorId(id);
+}
+
+async function buscarPorNome(dado){
+    return categoriasRepository.buscarPorNome(dado);
 }
 
 async function criar(dados){
@@ -23,6 +28,7 @@ async function deletar(id){
 module.exports = {
     listar,
     buscarPorId,
+    buscarPorNome,
     criar,
     atualizar,
     deletar,
