@@ -1,12 +1,274 @@
-const ordenarPor = consulta.ordenarPor ?? "nome";
+const clientesRepository = require("./clientes.repository");
+const { criarErro } = require("../utils/erros");
 
-if (!CAMPOS_ORDENAVEIS.includes(ordenarPor)) {
-    throw criarErro(400, "Campo de ordenação inválido.");
+// Evita que alguém mande um nome de campo qualquer pela URL.
+const CAMPOS_ORDENAVEIS = ["nome", "telefone", "email"];
+
+
+function limparTexto(valor){
+    if(!valor){
+        return "";
+    }
+    return String(valor).trim(); //o trim só tira os espaços do inicio e do fim
 }
 
-const clientes = await clientesRepository.listar({
-    busca,
-    buscaNumeros: somenteNumeros(busca),
-    ordenarPor,
-    direcao: "ASC",
-});
+
+// Tira tudo que não é número: "(49) 99876-5432" vira "49998765432".
+function somenteNumeros(valor) {
+
+    const texto = String(valor);// tem q convrter em string antes por conta do replace que só funciona com texto
+    return texto.replace(/\D/g, ""); //qualquer coisa que não seja digito troque por ""
+}
+
+
+
+// Valida os dados que vieram do front e monta o objeto pro banco.
+function TratarDados(dados) {
+
+    if(!dados){
+        dados = {};
+    }
+
+
+    const nome = limparTexto(dados.nome)
+
+    if( nome.length > 150 ){
+        throw criarErro(400, "O nome deve ter no máximo 150 caracteres.");
+    }
+
+    const telefone = somenteNumeros(dados.telefone);
+
+    if (nome === "" || telefone === ""){
+        throw criarErro(400, "Nome e telefone são obrigatórios.");
+    }
+
+    if(telefone.length < 10 || telefone.length > 11){
+        throw criarErro(400, "Telefone inválido, informe o DDD e o número.")
+    }
+
+    const documento =  somenteNumeros(dados.documento);
+    let cpf = null;
+    let cnpj = null;
+
+    if (documento.length === 11){
+        cpf = documento;
+    } else if (documento.length === 14){
+        cnpj = documento
+    } else if (documento.length > 0){
+        throw criarErro(400, "CPF/CNPJ inválido. O CPF tem 11 digitos e o CNPJ tem 14.")
+    } // Se não digitou nada (length 0) não faz nada e o cliente fica sem documento.
+
+
+
+     //------------EMAIL--------------------
+    let email = limparTexto(dados.email);
+
+    if(email !== "" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ //não aceita se não tiver formato de email correto
+        throw criarErro(400, "E-mail inválido.")
+    }
+
+    if(email.length > 150){
+        throw criarErro(400, "O email deve ter no máximo 150 caracteres.");
+    }
+
+     if (email === ""){
+        email = null;
+    }
+
+
+    
+    
+    //------------CEP--------------------
+    let cep = somenteNumeros(dados.cep);
+
+    if(cep.length > 0 && cep.length !== 8){
+        throw criarErro(400, "CEP Inválido. Informe os 8 dígitos")
+    }
+
+    if (cep === ""){
+        cep = null;
+    }
+
+
+
+
+    //------------RUA--------------------
+    let rua = limparTexto(dados.rua);
+
+    if(rua.length > 150){
+        throw criarErro(400, "A Rua deve ter no máximo 150 caracteres");
+    }
+
+    if (rua === ""){
+        rua = null;
+    }
+
+
+
+    //------------BAIRRO--------------------
+    let bairro = limparTexto(dados.bairro);
+
+    if(bairro.length > 100){
+        throw criarErro(400, "O Bairro deve ter no máximo 100 caracteres");
+    }
+
+    if (bairro === ""){
+        bairro = null;
+    }
+
+
+
+    //------------NÚMERO--------------------
+
+    let numero = limparTexto(dados.numero);
+
+    if (numero.length > 10){
+        throw criarErro(400, "O número deve ter no máximo 10 caracteres");
+    }
+
+
+    if (numero === ""){
+        numero = null;
+    }
+
+    let referencia = limparTexto(dados.referencia);
+
+     if (referencia === ""){
+        referencia = null;
+    }
+
+    return {
+    nome,
+    telefone,
+    email,
+    cpf,
+    cnpj,
+    cep,
+    rua,
+    numero,
+    bairro,
+    referencia,
+};
+}
+
+async function validarDocumentoUnico(dados, idAtual) {
+    if(dados.cpf){
+        const existe = await clientesRepository.buscarPorCpf(dados.cpf);
+        if(existe && existe.idCliente !== idAtual) {  //se existir um cliente a variavel existe vai receber ele e vai dar errado e se n existir vai dar null e nem entra na condição
+           throw criarErro(409, "Já existe um cliente cadastrado com esse CPF");
+    }
+    
+}
+
+if(dados.cnpj){
+    const existe = await clientesRepository.buscarPorCnpj(dados.cnpj);
+    if(existe && existe.idCliente !== idAtual){
+        throw criarErro(409, "Já existe um cliente cadastrado com esse CNPJ");
+    }
+}
+}
+
+//em todos os casos em que for necessário o id validar pra ver se ele é um numero e maior que zero e se o cliente existe
+async function validacaoIDeClienteExistente(id) {
+
+    const numero = Number(id);
+
+    if(!Number.isInteger(numero) || numero <= 0){
+        throw criarErro(400, "Identificador de cliente inválido.");
+    }
+
+    const cliente = await clientesRepository.buscarPorId(numero);
+
+    if(!cliente){
+        throw criarErro(404, "Cliente não encontrado.")
+    }
+
+    return cliente;
+    
+}
+
+
+async function buscarPorId(id) {
+    return validacaoIDeClienteExistente(id); 
+}
+
+
+
+async function listar(consulta) {
+
+    //Pega o que veio na URL (pode estar vazio)
+    let busca = consulta.busca;
+    let ordenarPor = consulta.ordenarPor;
+
+
+     //Se não veio nada, usa um valor padrão
+    if(!busca){
+        busca = "";
+    }
+
+    if (!ordenarPor){
+        ordenarPor = "nome";
+    }
+
+
+     //Tira os espaços do começo e do fim da busca
+    busca = String(busca).trim();
+
+
+     //Só aceita ordenar por um dos campos permitidos
+    if(!CAMPOS_ORDENAVEIS.includes(ordenarPor)){
+        throw criarErro(400, "Campo de ordenação inválido.");
+    }
+   
+
+     //Separa só os números do que a pessoa digitou
+    const buscaNumeros = somenteNumeros(busca);
+
+    const clientes = await clientesRepository.listar({
+        busca: busca,
+        buscaNumeros : buscaNumeros,
+        ordenarPor: ordenarPor,
+        direcao: "ASC",
+    });
+
+
+     //Devolve a lista pro controller
+    return clientes;
+} 
+
+
+async function criar(dados) {
+  const novo = TratarDados(dados); //valida os dados novos
+  await validarDocumentoUnico(novo, null); //garante que o cpf/cnpj não seja duplicado
+  return clientesRepository.criar(novo);
+
+   
+} 
+async function atualizar(id, dados) {
+    const cliente = await validacaoIDeClienteExistente(id); //confere se o id ta certo e se o cliente existe
+    const novo = TratarDados(dados); //valida os novos dados
+    await validarDocumentoUnico(novo, cliente.idCliente);  //garante que o cpf/cnpj não seja duplicado
+    return clientesRepository.atualizar(cliente, novo);
+} 
+
+//Se o cliente já tem pedido, ele não pode ser excluido do banco
+async function excluir(id) {
+    const cliente = await validacaoIDeClienteExistente(id); 
+    try{
+        await clientesRepository.excluir(cliente);
+    } catch (erro){
+        if(erro.name === "SequelizeForeignKeyConstraintError"){
+            throw criarErro(409, "Não é possível excluir esse cliente, ele possui pedidos cadastrados.");
+        }
+
+        throw erro; //para erros desconhecidos
+    }
+    
+} 
+
+module.exports = {buscarPorId, listar, criar, atualizar, excluir};
+
+
+
+
+   
