@@ -8,7 +8,7 @@ const cors = require("cors");
 const passport = require("passport");
 
 // Traz a função que ensina o Passport a ler tokens JWT.
-const { configureJwtStrategy } = require("./Auth/auth.config");
+const { configureJwtStrategy ,requirePerfil} = require("./Auth/auth.config");
 const authRouter = require("./Auth/auth.router");
 
 const categoriasRoutes = require("./Categorias/categorias.router");
@@ -22,8 +22,7 @@ const PORT = process.env.PORT || 3010;
 app.use(cors());
 app.use(express.json());
 
-app.use(categoriasRoutes);
-app.use(subcategoriaRoutes);
+
 
 // Registra a estratégia JWT no Passport (ensina a ler o token).
 // Sem esta linha, o Passport não sabe validar nada.
@@ -31,6 +30,13 @@ configureJwtStrategy();
 
 // Inicia o Passport no servidor.
 app.use(passport.initialize());
+
+// Protege categorias e subcategorias: sem token válido, retorna 401.
+app.use("/categorias", requirePerfil("admin", "vendedor"));
+app.use("/subcategorias", requirePerfil("admin", "vendedor"));
+
+app.use(categoriasRoutes);
+app.use(subcategoriaRoutes);
 
 app.use("/auth", authRouter);
 app.use("/clientes", clientesRouter);
