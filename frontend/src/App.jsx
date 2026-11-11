@@ -3,6 +3,8 @@ import axios from "axios";
 import Login from "./paginas/Login";
 import Inicio from "./paginas/Inicio";
 import Clientes from "./paginas/Clientes";
+import Box from "@mui/material/Box";
+import MenuLateral from "./componentes/MenuLateral";
 
 
 
@@ -33,7 +35,7 @@ export default function App() {
         return Boolean(token);
     });
 
-    const [paginaAtual, setPaginaAtual] = useState("inicio");
+    const [paginaAtual, setPaginaAtual] = useState("catalogo");
     
     function handleLogin() {
        
@@ -59,15 +61,16 @@ export default function App() {
 
     
     return (
-     
-    <>
-        <button type="button" onClick={() => setPaginaAtual("inicio")}>Início</button>
-        <button type="button" onClick={() => setPaginaAtual("clientes")}>Clientes</button>
-        <button type="button" onClick={handleLogout}>Sair</button>
+    <Box sx={{ display: "flex" }}>
+        <MenuLateral paginaAtual={paginaAtual} aoSelecionar={setPaginaAtual} />
 
-        {paginaAtual === "inicio" && <Inicio />}
-        {paginaAtual === "clientes" && <Clientes />}
-    </>
-);
-    
+        <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+            {/* Botão temporário: no passo 3 vai pra barra superior */}
+            <button type="button" onClick={handleLogout}>Sair</button>
+
+           {paginaAtual === "catalogo" && <Inicio />}
+           {paginaAtual === "clientes" && <Clientes />}
+        </Box>
+    </Box>
+    );
 }
