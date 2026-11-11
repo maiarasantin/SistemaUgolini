@@ -1,6 +1,9 @@
 import { useState } from "react";
 import axios from "axios";
-import Login from "./Login";
+import Login from "./paginas/Login";
+import Inicio from "./paginas/Inicio";
+import Clientes from "./paginas/Clientes";
+
 
 
 
@@ -30,6 +33,7 @@ export default function App() {
         return Boolean(token);
     });
 
+    const [paginaAtual, setPaginaAtual] = useState("inicio");
     
     function handleLogin() {
        
@@ -55,12 +59,15 @@ export default function App() {
 
     
     return (
-        <>
-            <h1>Sistema Ugolini</h1>
-            <p>Você está logada!</p>
-            <button type="button" onClick={handleLogout}>
-                Sair
-            </button>
-        </>
-    );
+     
+    <>
+        <button type="button" onClick={() => setPaginaAtual("inicio")}>Início</button>
+        <button type="button" onClick={() => setPaginaAtual("clientes")}>Clientes</button>
+        <button type="button" onClick={handleLogout}>Sair</button>
+
+        {paginaAtual === "inicio" && <Inicio />}
+        {paginaAtual === "clientes" && <Clientes />}
+    </>
+);
+    
 }
