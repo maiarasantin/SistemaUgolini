@@ -5,6 +5,8 @@ import Inicio from "./paginas/Inicio";
 import Clientes from "./paginas/Clientes";
 import Box from "@mui/material/Box";
 import MenuLateral from "./componentes/MenuLateral";
+import BarraSuperior from "./componentes/BarraSuperior";
+import { ITENS } from "./componentes/itensMenu";
 
 
 
@@ -59,17 +61,27 @@ export default function App() {
         return <Login onLogin={handleLogin} />;  // Não está logada? Mostra só o login, e passa handleLogin pra ele avisar quando der certo.
     }
 
+
+    const itemAtual = ITENS.find((item) => item.id === paginaAtual);// .find percorre ITENS e devolve o PRIMEIRO item cujo id é igual à página aberta.
+
+    let tituloPagina = "";
+
+    if (itemAtual) {
+        tituloPagina = itemAtual.texto;//isso aqui serve para a barra superior
+    }  
     
     return (
     <Box sx={{ display: "flex" }}>
         <MenuLateral paginaAtual={paginaAtual} aoSelecionar={setPaginaAtual} />
 
-        <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-            {/* Botão temporário: no passo 3 vai pra barra superior */}
-            <button type="button" onClick={handleLogout}>Sair</button>
+       {/* Lado direito: ocupa o resto da largura. Barra em cima, conteúdo embaixo. */}
+        <Box sx={{ flexGrow: 1 }}>
+            <BarraSuperior aoSair={handleLogout} tituloPagina={tituloPagina} />
 
-           {paginaAtual === "catalogo" && <Inicio />}
-           {paginaAtual === "clientes" && <Clientes />}
+            <Box component="main" sx={{ p: 3 }}>
+                {paginaAtual === "catalogo" && <Inicio />}
+                {paginaAtual === "clientes" && <Clientes />}
+            </Box>
         </Box>
     </Box>
     );
