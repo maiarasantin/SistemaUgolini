@@ -32,6 +32,9 @@ configureJwtStrategy();
 // Inicia o Passport no servidor.
 app.use(passport.initialize());
 
+app.use("/auth", authRouter);
+app.use("/clientes", clientesRouter);
+
 // Protege categorias e subcategorias: sem token válido, retorna 401.
 app.use("/categorias", requirePerfil("admin", "vendedor"));
 app.use("/subcategorias", requirePerfil("admin", "vendedor"));
@@ -41,8 +44,7 @@ app.use(categoriasRoutes);
 app.use(subcategoriaRoutes);
 app.use(pedidoRoutes);
 
-app.use("/auth", authRouter);
-app.use("/clientes", clientesRouter);
+
 
 app.listen(PORT, () => {
     console.log(`Servidor rodando em http://localhost:${PORT}`);
