@@ -8,6 +8,10 @@ async function buscarPorId(id){
     return categoriasRepository.buscarPorId(id);
 }
 
+/*async function buscarPorNome(dado){
+    return categoriasRepository.buscarPorNome(dado);
+}*/
+
 async function criar(dados){
     return categoriasRepository.criar(dados);
 }
@@ -23,6 +27,7 @@ async function deletar(id){
 module.exports = {
     listar,
     buscarPorId,
+    //buscarPorNome,
     criar,
     atualizar,
     deletar,

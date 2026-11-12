@@ -9,6 +9,9 @@ router.get("/subcategorias", subcategoriasController.listar);
 // GET /subcategorias/:id
 router.get("/subcategorias/:id", subcategoriasController.buscarPorId);
 
+// GET /subcategorias/nome
+router.get("/subcategorias/nome", subcategoriasController.buscarPorNome);
+
 // POST /subcategorias
 router.post("/subcategorias", subcategoriasController.criar);
 

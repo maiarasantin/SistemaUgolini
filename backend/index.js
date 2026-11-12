@@ -13,6 +13,7 @@ const authRouter = require("./Auth/auth.router");
 
 const categoriasRoutes = require("./Categorias/categorias.router");
 const subcategoriaRoutes = require("./Subcategorias/subcategorias.router");
+const pedidoRoutes = require("./Pedidos/pedidos.router");
 
 
 
@@ -37,6 +38,7 @@ app.use("/subcategorias", requirePerfil("admin", "vendedor"));
 
 app.use(categoriasRoutes);
 app.use(subcategoriaRoutes);
+app.use(pedidoRoutes);
 
 app.use("/auth", authRouter);
 app.use("/clientes", clientesRouter);
