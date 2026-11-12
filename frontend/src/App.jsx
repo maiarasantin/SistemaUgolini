@@ -3,6 +3,10 @@ import axios from "axios";
 import Login from "./paginas/Login";
 import Inicio from "./paginas/Inicio";
 import Clientes from "./paginas/Clientes";
+import Box from "@mui/material/Box";
+import MenuLateral from "./componentes/MenuLateral";
+import BarraSuperior from "./componentes/BarraSuperior";
+import { ITENS } from "./componentes/itensMenu";
 
 
 
@@ -33,7 +37,7 @@ export default function App() {
         return Boolean(token);
     });
 
-    const [paginaAtual, setPaginaAtual] = useState("inicio");
+    const [paginaAtual, setPaginaAtual] = useState("catalogo");
     
     function handleLogin() {
        
@@ -57,17 +61,28 @@ export default function App() {
         return <Login onLogin={handleLogin} />;  // Não está logada? Mostra só o login, e passa handleLogin pra ele avisar quando der certo.
     }
 
+
+    const itemAtual = ITENS.find((item) => item.id === paginaAtual);// .find percorre ITENS e devolve o PRIMEIRO item cujo id é igual à página aberta.
+
+    let tituloPagina = "";
+
+    if (itemAtual) {
+        tituloPagina = itemAtual.texto;//isso aqui serve para a barra superior
+    }  
     
     return (
-     
-    <>
-        <button type="button" onClick={() => setPaginaAtual("inicio")}>Início</button>
-        <button type="button" onClick={() => setPaginaAtual("clientes")}>Clientes</button>
-        <button type="button" onClick={handleLogout}>Sair</button>
+    <Box sx={{ display: "flex" }}>
+        <MenuLateral paginaAtual={paginaAtual} aoSelecionar={setPaginaAtual} />
 
-        {paginaAtual === "inicio" && <Inicio />}
-        {paginaAtual === "clientes" && <Clientes />}
-    </>
-);
-    
+       {/* Lado direito: ocupa o resto da largura. Barra em cima, conteúdo embaixo. */}
+        <Box sx={{ flexGrow: 1 }}>
+            <BarraSuperior aoSair={handleLogout} tituloPagina={tituloPagina} />
+
+            <Box component="main" sx={{ p: 3 }}>
+                {paginaAtual === "catalogo" && <Inicio />}
+                {paginaAtual === "clientes" && <Clientes />}
+            </Box>
+        </Box>
+    </Box>
+    );
 }
