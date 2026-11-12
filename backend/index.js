@@ -35,6 +35,7 @@ app.use(passport.initialize());
 // Protege categorias e subcategorias: sem token válido, retorna 401.
 app.use("/categorias", requirePerfil("admin", "vendedor"));
 app.use("/subcategorias", requirePerfil("admin", "vendedor"));
+app.use("/pedidos", requirePerfil("admin", "vendedor"));
 
 app.use(categoriasRoutes);
 app.use(subcategoriaRoutes);
