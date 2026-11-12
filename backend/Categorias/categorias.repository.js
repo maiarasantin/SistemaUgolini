@@ -8,13 +8,13 @@ async function buscarPorId(id) {
     return Categoria.findByPk(id);
 }
 
-async function buscarPorNome(dado){
+/*async function buscarPorNome(dado){
     return Categoria.findAll({
         where : {
             nome: {[Op.iLike] : `%${nome}%`}
         }
     });
-}
+}*/
 
 async function criar(dados){
     return Categoria.create(dados);
@@ -36,7 +36,7 @@ async function deletar(id){
 module.exports = {
     listar,
     buscarPorId,
-    buscarPorNome,
+    //buscarPorNome,
     criar,
     atualizar,
     deletar,

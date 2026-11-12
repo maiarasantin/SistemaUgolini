@@ -10,7 +10,7 @@ router.get("/categorias", categoriasController.listar);
 router.get("/categorias/:id", categoriasController.buscarPorId);
 
 // GET /categorias/nome
-router.get("/categorias/nome", categoriasController.buscarPorNome);
+//router.get("/categorias/nome", categoriasController.buscarPorNome);
 
 // POST /categorias
 router.post("/categorias", categoriasController.criar);
