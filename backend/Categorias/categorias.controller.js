@@ -3,7 +3,7 @@ const { responderErro } = require("../utils/erros");
 
 async function listar(req, res) {
     try{
-           const categorias = await categoriasService.listar(req.query);
+        const categorias = await categoriasService.listar(req.query);
         return res.status(200).json({ categorias });
     } catch(erro) {
         return responderErro(res, erro);
