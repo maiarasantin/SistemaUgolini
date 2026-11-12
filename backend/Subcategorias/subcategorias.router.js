@@ -1,24 +1,24 @@
 const express = require("express");
 const subcategoriasController = require("./subcategorias.controller");
+const { requirePerfil } = require("../Auth/auth.config");
 
 const router = express.Router();
 
-// GET /subcategorias
-router.get("/subcategorias", subcategoriasController.listar);
+router.use(requirePerfil("admin", "vendedor"));
+
+// GET /subcategorias?busca=&idCategoria=&ordenarPor=&direcao=
+router.get("/", subcategoriasController.listar);
 
 // GET /subcategorias/:id
-router.get("/subcategorias/:id", subcategoriasController.buscarPorId);
-
-// GET /subcategorias/nome
-router.get("/subcategorias/nome", subcategoriasController.buscarPorNome);
+router.get("/:id", subcategoriasController.buscarPorId);
 
 // POST /subcategorias
-router.post("/subcategorias", subcategoriasController.criar);
+router.post("/", subcategoriasController.criar);
 
 // PUT /subcategorias/:id
-router.put("/subcategorias/:id", subcategoriasController.atualizar);
+router.put("/:id", subcategoriasController.atualizar);
 
 // DELETE /subcategorias/:id
-router.delete("/subcategorias/:id", subcategoriasController.deletar);
+router.delete("/:id", subcategoriasController.excluir);
 
 module.exports = router;

@@ -1,72 +1,55 @@
 const categoriasService = require("./categorias.service");
+const { responderErro } = require("../utils/erros");
 
 async function listar(req, res) {
     try{
-        const categorias = await categoriasService.listar();
-        return res.status(200).json(categorias);
+           const categorias = await categoriasService.listar(req.query);
+        return res.status(200).json({ categorias });
     } catch(erro) {
-        console.log("Erro ao buscar categorias:", erro);
-        return res.status(500).json({ erro: erro.message });
+        return responderErro(res, erro);
     }
 }
 
 async function buscarPorId(req, res) {
     try {
         const categoria = await categoriasService.buscarPorId(req.params.id);
-        return res.status(200).json(categoria);
+        return res.status(200).json({ categoria });
     } catch (erro) {
-        console.log("Erro ao buscar categoria:", erro);
-        return res.status(500).json({ erro: erro.message });
+        return responderErro(res, erro);
     }
 }
-
-/*async function buscarPorNome(req, res) {
-    try{
-        const categoria = await categoriasService.buscarPorNome(req.body);
-        return res.status(200).json(categoria);
-    }catch (erro) {
-        console.log("Erro ao buscar categoria:", erro);
-        return res.status(500).json({ erro: erro.message });
-    }
-}*/
 
 async function criar(req, res) {
     try {
         const categoria = await categoriasService.criar(req.body);
-        return res.status(201).json(categoria);
+        return res.status(201).json({ categoria });
     } catch (erro) {
-        console.log("Erro ao criar categoria:", erro);
-        return res.status(500).json({ erro: erro.message });
+        return responderErro(res, erro);
     }
 }
 
 async function atualizar(req, res) {
     try {
         const categoria = await categoriasService.atualizar(req.params.id, req.body);
-        if (!categoria) return res.status(404).json({ erro: "Categoria não encontrado" });
-        return res.status(200).json(categoria);
+        return res.status(200).json({ categoria });
     } catch (erro) {
-        console.log("Erro ao atualizar categoria:", erro);
-        return res.status(500).json({ erro: erro.message });
+        return responderErro(res, erro);
     }
 }
 
-async function deletar(req, res) {
+async function excluir(req, res) {
     try {
-        const categoria = await categoriasService.deletar(req.params.id);
-        if (!categoria) return res.status(404).json({ erro: "Categoria não encontrado" });
+        await categoriasService.excluir(req.params.id);
         return res.status(204).send();
     } catch (erro) {
-        console.log("Erro ao deletar categoria:", erro);
-        return res.status(500).json({ erro: erro.message });
+        return responderErro(res, erro);
     }
 }
 
 module.exports = {
     listar,
     buscarPorId,
-    //buscarPorNome,
     criar,
     atualizar,
-    deletar,
+    excluir,
 };

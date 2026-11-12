@@ -1,72 +1,57 @@
 const subcategoriasService = require("./subcategorias.service");
+const { responderErro } = require("../utils/erros");
 
 async function listar(req, res) {
     try {
-        const subcategorias = await subcategoriasService.listar();
-        return res.status(200).json(subcategorias);
+        // Busca, filtros e ordenação vêm no endereço (req.query):
+        // GET /subcategorias?busca=rosa&idCategoria=3&ordenarPor=categoria&direcao=DESC
+        const subcategorias = await subcategoriasService.listar(req.query);
+        return res.status(200).json({ subcategorias });
     } catch (erro) {
-        console.log("Erro ao buscar subcategorias:", erro);
-        return res.status(500).json({ erro: erro.message });
+        return responderErro(res, erro);
     }
 }
 
 async function buscarPorId(req, res) {
     try {
         const subcategoria = await subcategoriasService.buscarPorId(req.params.id);
-        return res.status(200).json(subcategoria);
+        return res.status(200).json({ subcategoria });
     } catch (erro) {
-        console.log("Erro ao buscar subcategoria:", erro);
-        return res.status(500).json({ erro: erro.message });
-    }
-}
-
-async function buscarPorNome(req, res) {
-    try{
-        const subcategoria = await subcategoriasService.buscarPorNome(req.body);
-        return res.status(200).json(subcategoria);
-    }catch (erro) {
-        console.log("Erro ao buscar subcategoria:", erro);
-        return res.status(500).json({ erro: erro.message });
+        return responderErro(res, erro);
     }
 }
 
 async function criar(req, res) {
     try {
         const subcategoria = await subcategoriasService.criar(req.body);
-        return res.status(201).json(subcategoria);
+        return res.status(201).json({ subcategoria });
     } catch (erro) {
-        console.log("Erro ao criar subcategoria:", erro);
-        return res.status(500).json({ erro: erro.message });
+        return responderErro(res, erro);
     }
 }
 
 async function atualizar(req, res) {
     try {
         const subcategoria = await subcategoriasService.atualizar(req.params.id, req.body);
-        if (!subcategoria) return res.status(404).json({ erro: "Subcategoria não encontrado" });
-        return res.status(200).json(subcategoria);
+        return res.status(200).json({ subcategoria });
     } catch (erro) {
-        console.log("Erro ao atualizar subcategoria:", erro);
-        return res.status(500).json({ erro: erro.message });
+        return responderErro(res, erro);
     }
 }
 
-async function deletar(req, res) {
+async function excluir(req, res) {
     try {
-        const subcategoria = await subcategoriasService.deletar(req.params.id);
-        if (!subcategoria) return res.status(404).json({ erro: "Subcategoria não encontrado" });
+        await subcategoriasService.excluir(req.params.id);
         return res.status(204).send();
     } catch (erro) {
-        console.log("Erro ao deletar subcategoria:", erro);
-        return res.status(500).json({ erro: erro.message });
+        return responderErro(res, erro);
     }
 }
 
-module.exports = {
-    listar,
-    buscarPorId,
-    buscarPorNome,
-    criar,
-    atualizar,
-    deletar,
+module.exports = { 
+    listar, 
+    buscarPorId, 
+    criar, 
+    atualizar, 
+    excluir, 
 };
