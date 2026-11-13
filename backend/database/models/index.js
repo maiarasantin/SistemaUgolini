@@ -1,3 +1,5 @@
+const sequelize = require("../connection");
+
 const Categoria = require("./categoria.model");
 const Cliente = require("./cliente.model");
 const Composicao = require("./composicao.model");
@@ -7,9 +9,9 @@ const ItemPedido = require("./item-pedido.model");
 const Pagamento = require("./pagamento.model");
 const Pedido = require("./pedido.model");
 const Produto = require("./produto.model");
-const Subcategoria = require("./subcategoria.model");
+const SubCategoria = require("./subcategoria.model");
 
-module.exports = {
+const db = {
     Categoria,
     Cliente,
     Composicao,
@@ -19,5 +21,13 @@ module.exports = {
     Pagamento,
     Pedido,
     Produto,
-    Subcategoria
+    SubCategoria
 };
+
+Object.values(db).forEach((modelo) => {
+    if (modelo.associate) {
+        modelo.associate(db);
+    }
+});
+
+module.exports = db;

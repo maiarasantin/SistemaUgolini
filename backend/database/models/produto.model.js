@@ -87,11 +87,6 @@ Produto.associate = (models) => {
         as: "componenteDe"
     });
 
-    Produto.hasMany(models.ItemEntradaEstoque, {
-        foreignKey: "idProduto",
-        as: "entradasEstoque"
-    });
-
 };
 
 module.exports = Produto;

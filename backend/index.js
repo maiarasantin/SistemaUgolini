@@ -13,7 +13,6 @@ const authRouter = require("./Auth/auth.router");
 
 const categoriasRoutes = require("./Categorias/categorias.router");
 const subcategoriaRoutes = require("./Subcategorias/subcategorias.router");
-const pedidoRoutes = require("./Pedidos/pedidos.router");
 
 
 
@@ -34,15 +33,12 @@ app.use(passport.initialize());
 
 app.use("/auth", authRouter);
 app.use("/clientes", clientesRouter);
+app.use("/categorias", categoriasRoutes);
+app.use("/subcategorias", subcategoriaRoutes);
 
 // Protege categorias e subcategorias: sem token válido, retorna 401.
 app.use("/categorias", requirePerfil("admin", "vendedor"));
 app.use("/subcategorias", requirePerfil("admin", "vendedor"));
-app.use("/pedidos", requirePerfil("admin", "vendedor"));
-
-app.use(categoriasRoutes);
-app.use(subcategoriaRoutes);
-app.use(pedidoRoutes);
 
 
 

@@ -1,5 +1,5 @@
 const { Op } = require("sequelize");
-const { Subcategoria, Categoria, Produto } = require("../database/models");
+const { SubCategoria, Categoria, Produto } = require("../database/models");
 const { escaparLike } = require("../utils/validacoes");
 
 // Toda subcategoria vem acompanhada da sua categoria (só id e nome),
@@ -47,7 +47,7 @@ async function listar({ busca, idCategoria, ordenarPor, direcao }) {
         where.idCategoria = idCategoria;
     }
 
-    return Subcategoria.findAll({
+    return SubCategoria.findAll({
         where,
         include: [INCLUIR_CATEGORIA],
         order: montarOrdem(ordenarPor, direcao),
@@ -55,12 +55,12 @@ async function listar({ busca, idCategoria, ordenarPor, direcao }) {
 }
 
 async function buscarPorId(id) {
-    return Subcategoria.findByPk(id, { include: [INCLUIR_CATEGORIA] });
+    return SubCategoria.findByPk(id, { include: [INCLUIR_CATEGORIA] });
 }
 
 // Usada pelo service antes de salvar, pra recusar nome repetido DENTRO da mesma categoria (409).
 async function buscarPorNomeNaCategoria(nome, idCategoria) {
-    return Subcategoria.findOne({
+    return SubCategoria.findOne({
         where: { nome: { [Op.iLike]: escaparLike(nome) }, idCategoria },
     });
 }
@@ -71,7 +71,7 @@ async function categoriaExiste(idCategoria) {
 }
 
 async function criar(dados) {
-    return Subcategoria.create(dados);
+    return SubCategoria.create(dados);
 }
 
 async function atualizar(subcategoria, dados) {
@@ -83,7 +83,7 @@ async function excluir(subcategoria) {
 }
 
 async function contarProdutos(idSubcategoria) {
-    return Produto.count({ where: { idSubcategoria } });
+    return Produto.count({ where: { idSubCategoria } });
 }
 
 module.exports = {

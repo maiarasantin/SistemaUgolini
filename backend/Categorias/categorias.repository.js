@@ -1,5 +1,5 @@
 const { Op, literal } = require("sequelize");
-const { Categoria, Subcategoria, Produto } = require("../database/models");
+const { Categoria, Produto, SubCategoria } = require("../database/models");
 const { escaparLike } = require("../utils/validacoes");
 
 // Subconsulta que conta quantas subcategorias cada categoria tem.
@@ -78,15 +78,15 @@ async function excluir(categoria) {
 }
 
 async function contarSubcategorias(idCategoria) {
-    return Subcategoria.count({ where: { idCategoria } });
+    return SubCategoria.count({ where: { idCategoria } });
 }
 
 // Conta os produtos das subcategorias desta categoria
 // (o produto se liga à subcategoria, e a subcategoria à categoria).
 async function contarProdutos(idCategoria) {
-    const subcategorias = await Subcategoria.findAll({
+    const subcategorias = await SubCategoria.findAll({
         where: { idCategoria },
-        attributes: ["idSubcategoria"],
+        attributes: ["idSubCategoria"],
         raw: true,
     });
 
@@ -94,8 +94,8 @@ async function contarProdutos(idCategoria) {
         return 0;
     }
 
-    const ids = subcategorias.map((sub) => sub.idSubcategoria);
-    return Produto.count({ where: { idSubcategoria: { [Op.in]: ids } } });
+    const ids = subcategorias.map((sub) => sub.idSubCategoria);
+    return Produto.count({ where: { idSubCategoria: { [Op.in]: ids } } });
 }
 
 module.exports = {
