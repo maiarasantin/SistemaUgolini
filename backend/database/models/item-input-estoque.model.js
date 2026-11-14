@@ -45,7 +45,7 @@ ItemInputEstoque.associate = (models) => {
         as: "produto"
     });
 
-    ItemInputEstoque.hasMany(models.inputEstoque, {
+    ItemInputEstoque.hasMany(models.InputEstoque, {
         foreignKey: "idEstoque",
         as: "estoque"
     });
