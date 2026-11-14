@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import FormularioCliente from "../FormularioCliente";
+import FormularioCliente from "./FormularioCliente";
 import Alert from "@mui/material/Alert";
 
 import Box from "@mui/material/Box";
