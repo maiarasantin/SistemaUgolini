@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import FormularioCliente from "../FormularioCliente";
 import Alert from "@mui/material/Alert";
 
 import Box from "@mui/material/Box";
@@ -21,13 +22,18 @@ const VERDE = "#2f5a45";
 
 
 function Clientes() {
-  const [clientes, setClientes] = useState([]);
-  const [carregando, setCarregando] = useState(true);
+  const [clientes, setClientes] = useState([]); //lista de clientes
+  const [carregando, setCarregando] = useState(true);  // Se está esperando a resposta da API
   const [erro, setErro] = useState("");
-  const [busca, setBusca] = useState("");
-  const [ordenarPor, setOrdenarPor] = useState("nome");
+  const [busca, setBusca] = useState(""); // o texto digitado no campo de busca, vai junto na chamada à API
+  const [ordenarPor, setOrdenarPor] = useState("nome");  // Critério de ordenação escolhido
+  const [tela, setTela] = useState("lista");  // Qual tela mostrar: "lista" ou "formulario".
+  const [recarregar, setRecarregar] = useState(0); // Quando o número muda, o useEffect busca a lista de novo.
+  const [clienteEditando, setClienteEditando] = useState(null); // null = cadastro novo; senão, o cliente que está sendo editado
 
   
+
+  // Busca os clientes na API e coloca os resultados na tela
     useEffect(() => {
       async function carregarClientes() {
         try {
@@ -49,10 +55,11 @@ function Clientes() {
 
       // Se a pessoa digitar de novo antes dos 400 ms, cancela a espera anterior.
       return () => clearTimeout(espera);
-    }, [busca, ordenarPor]); // roda de novo toda vez que a busca mudar
+    }, [busca, ordenarPor, recarregar ]); // roda de novo toda vez que a busca mudar
 
    
 
+    // a mensagem que aparece em cima da tabela
   let aviso = null;
 
   if (erro) {
@@ -79,6 +86,8 @@ function Clientes() {
   }
 
 
+
+//BOTÃO EXCLUIR
 async function excluirCliente(cliente) {
   // confirm abre uma caixinha com OK e Cancelar.
   // Devolve true se a pessoa clicou em OK, e false se cancelou.
@@ -99,7 +108,7 @@ async function excluirCliente(cliente) {
     
     let mensagem = "Não foi possível excluir o cliente. Tente novamente.";
 
-    // Se o back mandou uma mensagem (ex.: cliente com pedidos), usa ela.
+    // Se o back mandou uma mensagem ela será usada
     if (error.response && error.response.data.erro) {
       mensagem = error.response.data.erro;
     }
@@ -107,6 +116,45 @@ async function excluirCliente(cliente) {
     setErro(mensagem);
   }
 }
+
+
+
+// Chamada pelo formulário quando o cliente foi salvo
+function aoSalvarCliente() {
+  setRecarregar(recarregar + 1); //Busca a lista de novo
+  setTela("lista");              // Volta pra lista
+}
+
+
+//BOTÃO EDITAR
+function editarCliente(cliente){
+  setClienteEditando(cliente); // Guarda qual foi o cliente clicado
+  setTela("formulario"); // Chama o formulário na tela
+}
+
+
+
+
+
+
+// Se a tela é o formulário, mostra só ele e para por aqui
+if (tela === "formulario") {
+  return ( 
+    <FormularioCliente
+      cliente={clienteEditando}   // Quem está sendo editado se for null = cadastro novo
+      aoCancelar={() => setTela("lista")}    // Função que o formulário chama para voltar à lista
+      aoSalvar={aoSalvarCliente}    //Função que o formulário chama depois de salvar
+    />
+  );
+}
+
+
+
+
+
+
+
+
 
 
 
@@ -143,6 +191,10 @@ async function excluirCliente(cliente) {
           variant="contained" // botão preenchido
           startIcon={<AddIcon />} // ícone de +
           sx={{ bgcolor: VERDE }} // cor de fundo verde
+          onClick={() => {
+             setClienteEditando(null);  //Pode ter dois valores o null que é ninguem está sendo editado então precisa vim em branco pois é cadastro novo
+               setTela("formulario");   //Ou objeto cliente que seria a edição desse cliente
+          }}
         >
           Novo cliente
         </Button>
@@ -166,7 +218,7 @@ async function excluirCliente(cliente) {
                 sx={{ width: 380 }}
             />
 
-            {/* select faz o TextField virar uma lista de opções (dropdown) */}
+            {/* select faz o TextField virar uma lista de opções */}
             <TextField
                 select
                 size="small"
@@ -184,7 +236,7 @@ async function excluirCliente(cliente) {
 
 
         {/* Mostra a faixa de erro ou o "Carregando...". Se não tem nada
-                    pra avisar, "aviso" está vazio (null) e nada aparece. */}
+                    pra avisar nada aparece. */}
         {aviso}
 
         {/* -------- TABELA -------- */}
@@ -223,18 +275,17 @@ async function excluirCliente(cliente) {
 
                   <TableCell>{cliente.telefone}</TableCell>
 
-                  {/* Mostra o CPF; se não tiver, o CNPJ; se não tiver nenhum, "—".
-                                    O || escolhe o primeiro valor que não for vazio. */}
                   <TableCell>{cliente.cpf || cliente.cnpj || "—"}</TableCell>
 
                   <TableCell>{cliente.email || "—"}</TableCell>
 
-                  {/* Botões de ação (ainda não fazem nada) */}
+                  {/* Botões */}
                   <TableCell>
                     <Button
                       size="small"
                       startIcon={<EditOutlinedIcon />}
                       sx={{ color: VERDE }}
+                      onClick={() => editarCliente(cliente)}
                     >
                       Editar
                     </Button>
