@@ -15,21 +15,24 @@ import TableRow from "@mui/material/TableRow";
 import AddIcon from "@mui/icons-material/Add";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutlineOutlined";
+import MenuItem from "@mui/material/MenuItem";
 
 const VERDE = "#2f5a45";
+
 
 function Clientes() {
   const [clientes, setClientes] = useState([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
   const [busca, setBusca] = useState("");
+  const [ordenarPor, setOrdenarPor] = useState("nome");
 
   
     useEffect(() => {
       async function carregarClientes() {
         try {
           // params monta a URL sozinho: /clientes?busca=texto
-          const resposta = await axios.get("/clientes", { params: { busca } });
+          const resposta = await axios.get("/clientes", { params: { busca, ordenarPor  } });
           setClientes(resposta.data.clientes); //resposta.data é o conteúdo que a API respondeu o set aq guarda a lista e faz o react redesenhar a tabela
           setErro(""); // limpa um erro antigo, se a busca anterior tinha falhado
         } catch (error) {
@@ -46,11 +49,9 @@ function Clientes() {
 
       // Se a pessoa digitar de novo antes dos 400 ms, cancela a espera anterior.
       return () => clearTimeout(espera);
-    }, [busca]); // roda de novo toda vez que a busca mudar
+    }, [busca, ordenarPor]); // roda de novo toda vez que a busca mudar
 
-    // Chama a função que acabamos de criar.
-    carregarClientes();
-  }, []);
+   
 
   let aviso = null;
 
@@ -76,6 +77,43 @@ function Clientes() {
       </TableRow>
     );
   }
+
+
+async function excluirCliente(cliente) {
+  // confirm abre uma caixinha com OK e Cancelar.
+  // Devolve true se a pessoa clicou em OK, e false se cancelou.
+  const confirmou = window.confirm("Deseja excluir " + cliente.nome + "?");
+
+  // Se cancelou, para por aqui e não faz nada.
+  if (confirmou === false) {
+    return;
+  }
+
+  try {
+    
+    await axios.delete("/clientes/" + cliente.idCliente);
+
+    // Se deu certo monta uma lista nova SEM esse cliente
+    setClientes(clientes.filter((c) => c.idCliente !== cliente.idCliente)); // filter mantém só quem tem id diferente do que foi excluído.
+  } catch (error) {
+    
+    let mensagem = "Não foi possível excluir o cliente. Tente novamente.";
+
+    // Se o back mandou uma mensagem (ex.: cliente com pedidos), usa ela.
+    if (error.response && error.response.data.erro) {
+      mensagem = error.response.data.erro;
+    }
+   
+    setErro(mensagem);
+  }
+}
+
+
+
+
+
+
+
 
   return (
     <Box>
@@ -118,20 +156,30 @@ function Clientes() {
           p: 3, // espaço interno (24px)
         }}
       >
-        <TextField
-          size="small" // versão mais baixinha do campo
-          placeholder=
-          sx={{ mb: 2, width: 380 }}
-        />
+                
+            <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
+            <TextField
+                size="small"
+                placeholder="Buscar por nome, telefone ou CPF/CNPJ"
+                value={busca}
+                onChange={(e) => setBusca(e.target.value)}
+                sx={{ width: 380 }}
+            />
 
-
-        <TextField
-        size="small"
-        placeholder="Buscar por nome, telefone ou CPF/CNPJ"
-        value={busca}                            // o campo mostra o que está no estado
-        onChange={(e) => setBusca(e.target.value)} // a cada tecla, guarda o que foi digitado
-        sx={{ mb: 2, width: 380 }}
-        />
+            {/* select faz o TextField virar uma lista de opções (dropdown) */}
+            <TextField
+                select
+                size="small"
+                label="Ordenar por"
+                value={ordenarPor}
+                onChange={(e) => setOrdenarPor(e.target.value)}
+                sx={{ width: 180 }}
+            >
+                <MenuItem value="nome">Nome</MenuItem>
+                <MenuItem value="telefone">Telefone</MenuItem>
+                <MenuItem value="email">E-mail</MenuItem>
+            </TextField>
+            </Box>
 
 
 
@@ -195,6 +243,7 @@ function Clientes() {
                       size="small"
                       color="error" // vermelho padrão do MUI
                       startIcon={<DeleteOutlineIcon />}
+                    onClick={() => excluirCliente(cliente)}
                     >
                       Excluir
                     </Button>
