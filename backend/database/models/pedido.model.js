@@ -98,11 +98,6 @@ Pedido.associate = (models) => {
         as: "cliente"
     });
 
-    Pedido.belongsTo(models.Caixa, {
-        foreignKey: "idCaixa",
-        as: "caixa"
-    });
-
     Pedido.hasOne(models.Entrega, {
         foreignKey: "numPedido",
         as: "entrega"

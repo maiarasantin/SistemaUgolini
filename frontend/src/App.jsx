@@ -3,6 +3,7 @@ import axios from "axios";
 import Login from "./paginas/Login";
 import Inicio from "./paginas/Inicio";
 import Clientes from "./paginas/Clientes";
+import Categorias from "./paginas/Categorias"; 
 import Box from "@mui/material/Box";
 import MenuLateral from "./componentes/MenuLateral";
 import BarraSuperior from "./componentes/BarraSuperior";
@@ -81,6 +82,7 @@ export default function App() {
             <Box component="main" sx={{ p: 3 }}>
                 {paginaAtual === "catalogo" && <Inicio />}
                 {paginaAtual === "clientes" && <Clientes />}
+                {paginaAtual === "categorias" && <Categorias />}
             </Box>
         </Box>
     </Box>

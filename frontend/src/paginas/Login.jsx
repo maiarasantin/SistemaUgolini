@@ -26,6 +26,7 @@ export default function Login({ onLogin }) {
         } catch (error) {
     
             if (error.response) {
+                setTextoMensagem(error.response.data?.erro || "Não foi possível fazer login. Tente novamente.");
         // o back respondeu com erro: mostra a mensagem dele
         setTextoMensagem(error.response.data.erro);
     } else {
