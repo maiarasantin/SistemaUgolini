@@ -10,6 +10,8 @@ const Pagamento = require("./pagamento.model");
 const Pedido = require("./pedido.model");
 const Produto = require("./produto.model");
 const SubCategoria = require("./subcategoria.model");
+const InputEstoque = require("./input-estoque.model.js");
+const ItemInputEstoque = require("./item-input-estoque.model.js");
 
 const db = {
     Categoria,
@@ -21,7 +23,9 @@ const db = {
     Pagamento,
     Pedido,
     Produto,
-    SubCategoria
+    SubCategoria,
+    InputEstoque,
+    ItemInputEstoque,
 };
 
 Object.values(db).forEach((modelo) => {
