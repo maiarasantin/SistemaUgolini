@@ -6,7 +6,14 @@ import Button from "@mui/material/Button";
 import LogoutOutlined from "@mui/icons-material/LogoutOutlined";
 
 
-export default function BarraSuperior ({aoSair, tituloPagina}) {
+export default function BarraSuperior ({aoSair, tituloPagina, usuario }) {
+
+
+    let textoPerfil = "Vendedor";
+
+    if(usuario.perfil === "admin"){
+        textoPerfil = "Administrador";
+    }
 
     return(
  <Box
@@ -36,10 +43,10 @@ export default function BarraSuperior ({aoSair, tituloPagina}) {
                 {/* Nome em cima e perfil embaixo */}
                 <Box>
                     <Typography variant="body2" sx={{ fontWeight: 700, lineHeight: 1.2 }}>
-                        Ana Beatriz
+                        {usuario.nome}
                     </Typography>
                     <Typography variant="caption" sx={{ color: "text.secondary" }}>
-                        Vendedor
+                        {textoPerfil}
                     </Typography>
                 </Box>
 

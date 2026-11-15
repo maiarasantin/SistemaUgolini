@@ -130,7 +130,7 @@ export default function App() {
 
        {/* Lado direito: ocupa o resto da largura. Barra em cima, conteúdo embaixo. */}
         <Box sx={{ flexGrow: 1 }}>
-            <BarraSuperior aoSair={handleLogout} tituloPagina={tituloPagina} />
+            <BarraSuperior aoSair={handleLogout} tituloPagina={tituloPagina}  usuario={usuario} />
 
             <Box component="main" sx={{ p: 3 }}>
                 {paginaAtual === "catalogo" && <Inicio />}
