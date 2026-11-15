@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import FormularioCliente from "./FormularioCliente";
+import FormularioCliente from "../componentes/FormularioCliente";
 import Alert from "@mui/material/Alert";
 
 import Box from "@mui/material/Box";
@@ -87,8 +87,8 @@ function Clientes() {
 
 
 
-//BOTÃO EXCLUIR
-async function excluirCliente(cliente) {
+  //BOTÃO EXCLUIR
+  async function excluirCliente(cliente) {
   // confirm abre uma caixinha com OK e Cancelar.
   // Devolve true se a pessoa clicou em OK, e false se cancelou.
   const confirmou = window.confirm("Deseja excluir " + cliente.nome + "?");

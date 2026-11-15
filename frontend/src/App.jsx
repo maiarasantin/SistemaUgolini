@@ -11,6 +11,7 @@ import { ITENS } from "./componentes/itensMenu";
 
 
 
+// ------------------------ CONFIGURAÇÃO DO AXIOS ------------------------
 
 axios.defaults.baseURL = import.meta.env.VITE_API_URL;
 
@@ -25,6 +26,16 @@ function aplicarToken(token) {
     }
 }
 
+
+
+
+
+
+
+
+
+// ------------------------ COMPONENTE ------------------------
+
 export default function App() {
     
     const [usuario, setUsuario] = useState(null);
@@ -34,7 +45,7 @@ export default function App() {
         
         aplicarToken(token);
        
-        return Boolean(token);
+        return Boolean(token); // Devolve se existe token ou não
     });
 
     const [paginaAtual, setPaginaAtual] = useState("catalogo");
@@ -43,32 +54,34 @@ export default function App() {
 
 
 
+
+
+
+
+    // ------------------------ FUNÇÕES ------------------------
+
     function handleLogin() {
        
         aplicarToken(localStorage.getItem("token"));
-        
         setIsLoggedIn(true);
     }
 
 
-
-
-
-    // Chamada ao clicar em "Sair".
+    
     function handleLogout() {
-        
-        localStorage.removeItem("token");  // Apaga o token guardado no navegador.
-        
-        aplicarToken(null);
-        setUsuario(null);   
+        localStorage.removeItem("token");  // Apaga o token guardado no navegador
+        aplicarToken(null); // Tira o token do axios
+        setUsuario(null);    // esquece quem estava logado
         setIsLoggedIn(false);  // Volta pra tela de login.
     }
 
 
 
 
-      // Quando a pessoa está logada, pergunta ao back quem ela é
-    // Roda no login e também ao recarregar a página 
+
+
+    // ------------------------ DESCOBRIR QUEM LOGOU ------------------------
+
     useEffect(() => {
         // Sem login não tem o que buscar
         if (!isLoggedIn) {
@@ -82,14 +95,14 @@ export default function App() {
 
                 // Cada perfil começa em uma página que ele pode ver
                 if (resposta.data.perfil === "admin") {
-                    setPaginaAtual("entradaDeEstoque");
+                    setPaginaAtual("vendedores");
                 } else {
                     setPaginaAtual("catalogo");
                 }
             } catch (error) {
-                localStorage.removeItem("token"); // Token inválido ou expirado: volta para o login
-                aplicarToken(null);
-                setIsLoggedIn(false);
+                localStorage.removeItem("token"); // Apaga o token
+                aplicarToken(null); // Tira o token do axios
+                setIsLoggedIn(false);  
             }
         }
 
@@ -98,12 +111,24 @@ export default function App() {
     
 
     
+
+
+
+
+
+
+
+
+
+
+    // ------------------------ DECISÕES DE TELA ------------------------
+
     if (!isLoggedIn) {
-        return <Login onLogin={handleLogin} />;  // Não está logada? Mostra só o login, e passa handleLogin pra ele avisar quando der certo.
+        return <Login onLogin={handleLogin} />;  // Se não está logada mostra só o login e passa a prop para o Login
     }
 
 
-      // Está logada, mas o back-end ainda não respondeu quem ela é: espera.
+      // Está logada, mas o back-end ainda não respondeu quem ela é então espera.
     if (usuario === null) {
         return <Box sx={{ p: 3 }}>Carregando...</Box>;
     }
@@ -113,7 +138,7 @@ export default function App() {
     let tituloPagina = "";
 
     if (itemAtual) {
-        tituloPagina = itemAtual.texto;//isso aqui serve para a barra superior
+        tituloPagina = itemAtual.texto; // Isso aqui serve para a barra superior
     }  
     
 
