@@ -13,6 +13,7 @@ const authRouter = require("./Auth/auth.router");
 
 const categoriasRoutes = require("./Categorias/categorias.router");
 const subcategoriaRoutes = require("./Subcategorias/subcategorias.router");
+const funcionariosRouter = require("./Funcionarios/funcionarios.router");
 
 
 
@@ -35,6 +36,7 @@ app.use("/auth", authRouter);
 app.use("/clientes", clientesRouter);
 app.use("/categorias", categoriasRoutes);
 app.use("/subcategorias", subcategoriaRoutes);
+app.use("/funcionarios", funcionariosRouter);
 
 // Protege categorias e subcategorias: sem token válido, retorna 401.
 app.use("/categorias", requirePerfil("admin", "vendedor"));
