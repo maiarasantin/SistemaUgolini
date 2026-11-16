@@ -4,7 +4,7 @@ const sequelize = require("../connection");
 const SubCategoria = sequelize.define(
     "SubCategoria", 
     {
-        idSubCategoria: {
+        idSubcategoria: {
             type: DataTypes.INTEGER,
             primaryKey: true,
             autoIncrement: true,
@@ -39,7 +39,7 @@ SubCategoria.associate = (models) => {
     });
 
     SubCategoria.hasMany(models.Produto, {
-        foreignKey: "idSubCategoria",
+        foreignKey: "idSubcategoria",
         as: "produtos"
     });
 

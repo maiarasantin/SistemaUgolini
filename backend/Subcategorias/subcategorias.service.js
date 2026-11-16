@@ -111,7 +111,7 @@ async function atualizar(id, dados) {
 async function excluir(id) {
     const subcategoria = await validarIdESubcategoriaExistente(id);
 
-    const totalProdutos = await subcategoriasRepository.contarProdutos(subcategoria.idSubcategoria);
+    const totalProdutos = await subcategoriasRepository.contarProdutos(subcategoria.idSubCategoria);
 
     if (totalProdutos > 0) {
         throw criarErro(409, "Não é possível excluir esta subcategoria, ela possui produtos cadastrados.");

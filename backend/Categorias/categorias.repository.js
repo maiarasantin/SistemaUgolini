@@ -86,7 +86,7 @@ async function contarSubcategorias(idCategoria) {
 async function contarProdutos(idCategoria) {
     const subcategorias = await SubCategoria.findAll({
         where: { idCategoria },
-        attributes: ["idSubCategoria"],
+        attributes: ["idSubcategoria"],
         raw: true,
     });
 
@@ -94,8 +94,8 @@ async function contarProdutos(idCategoria) {
         return 0;
     }
 
-    const ids = subcategorias.map((sub) => sub.idSubCategoria);
-    return Produto.count({ where: { idSubCategoria: { [Op.in]: ids } } });
+    const ids = subcategorias.map((sub) => sub.idSubcategoria);
+    return Produto.count({ where: { idSubcategoria: { [Op.in]: ids } } });
 }
 
 module.exports = {

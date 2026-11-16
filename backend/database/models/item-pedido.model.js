@@ -15,7 +15,7 @@ const ItemPedido = sequelize.define(
             type: DataTypes.INTEGER,
             primaryKey: true,
             allowNull: false,
-            field: "nem_pedido"
+            field: "num_pedido"
         },
 
         quantidade: {

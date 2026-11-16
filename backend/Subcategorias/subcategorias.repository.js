@@ -83,7 +83,7 @@ async function excluir(subcategoria) {
 }
 
 async function contarProdutos(idSubcategoria) {
-    return Produto.count({ where: { idSubCategoria } });
+    return Produto.count({ where: { idSubcategoria } });
 }
 
 module.exports = {

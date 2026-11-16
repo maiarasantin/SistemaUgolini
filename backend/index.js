@@ -12,7 +12,8 @@ const { configureJwtStrategy ,requirePerfil} = require("./Auth/auth.config");
 const authRouter = require("./Auth/auth.router");
 
 const categoriasRoutes = require("./Categorias/categorias.router");
-const subcategoriaRoutes = require("./Subcategorias/subcategorias.router");
+const subcategoriasRoutes = require("./Subcategorias/subcategorias.router");
+const produtosRoutes = require("./Produtos/produtos.router");
 
 
 
@@ -34,12 +35,8 @@ app.use(passport.initialize());
 app.use("/auth", authRouter);
 app.use("/clientes", clientesRouter);
 app.use("/categorias", categoriasRoutes);
-app.use("/subcategorias", subcategoriaRoutes);
-
-// Protege categorias e subcategorias: sem token válido, retorna 401.
-app.use("/categorias", requirePerfil("admin", "vendedor"));
-app.use("/subcategorias", requirePerfil("admin", "vendedor"));
-
+app.use("/subcategorias", subcategoriasRoutes);
+app.use("/produtos", produtosRoutes);
 
 
 app.listen(PORT, () => {

@@ -68,7 +68,7 @@ const Produto = sequelize.define(
 Produto.associate = (models) => {
 
     Produto.belongsTo(models.SubCategoria, {
-        foreignKey: "idSubCategoria",
+        foreignKey: "idSubcategoria",
         as: "subcategoria"
     });
 

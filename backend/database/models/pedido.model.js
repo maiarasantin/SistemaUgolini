@@ -79,10 +79,10 @@ const Pedido = sequelize.define(
             field: "id_cliente"
         },
 
-        idCaixa: {
-            type: DataTypes.INTEGER,
-            field: "id_caixa"
-        }
+//        idCaixa: {
+//            type: DataTypes.INTEGER,
+//            field: "id_caixa"
+//        }
     },
     {
         timestamps: false,
