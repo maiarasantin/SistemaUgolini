@@ -5,7 +5,7 @@ const { createClient } = require("@supabase/supabase-js");
 let cliente = null; // criado só na primeira vez que for usado
 
 function nomeDoBucket() {
-    return process.env.SUPABASE_BUCKET || "pedidos";
+    return process.env.SUPABASE_BUCKET_PRODUTOS || "produtos";
 }
 
 function obterCliente() {

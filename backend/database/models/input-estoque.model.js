@@ -7,7 +7,7 @@ const ItemEstoque = sequelize.define(
         idEstoque: {
             type: DataTypes.INTEGER,
             primaryKey: true,
-            allowNull: false,
+            autoIncrement: true,
             field: "id_estoque"
         },
 

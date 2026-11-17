@@ -1,6 +1,6 @@
 const express = require("express");
 const categoriasController = require("./categorias.controller");
-const { requirePerfil } = require("../Auth/auth.config");
+const {requirePerfil} = require("../Auth/auth.config");
 
 const router = express.Router();
 

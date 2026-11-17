@@ -40,12 +40,12 @@ const ItemInputEstoque = sequelize.define(
 
 ItemInputEstoque.associate = (models) => {
 
-    ItemInputEstoque.hasMany(models.Produto, {
-        foreignKey: "idPedido",
+    ItemInputEstoque.belongsTo(models.Produto, {
+        foreignKey: "idProduto",
         as: "produto"
     });
 
-    ItemInputEstoque.hasMany(models.InputEstoque, {
+    ItemInputEstoque.belongsTo(models.InputEstoque, {
         foreignKey: "idEstoque",
         as: "estoque"
     });
