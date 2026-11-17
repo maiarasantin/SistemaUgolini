@@ -8,11 +8,22 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 
 
 
+
+
+
+
+
+
+
+
+
 // ---------- COMPONENTE ----------
 // Recebe duas props do App:
 //   paginaAtual = qual página está aberta (pra destacar o item certo)
 //   aoSelecionar  = função que o menu chama quando alguém clica num item
-export default function MenuLateral({ paginaAtual, aoSelecionar }) {
+export default function MenuLateral({ paginaAtual, aoSelecionar, perfil }) {
+
+    const itensVisiveis = ITENS.filter((item) => item.perfis.includes(perfil)); // Só os itens que o perfil pode ver
     return (
         <Box
             component="nav"
@@ -33,7 +44,7 @@ export default function MenuLateral({ paginaAtual, aoSelecionar }) {
              {/*A lista que agrupa os itens */}
             <List>
                  {/*  O map percorre ITENS e desenha um botão para cada item */}
-                {ITENS.map((item) => ( 
+                {itensVisiveis.map((item) => ( 
                     <ListItemButton //uma linha no menu, clicável
                         key={item.id}
                         selected={paginaAtual === item.id}

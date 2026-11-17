@@ -1,8 +1,8 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../connection');
 
-const InputEstoque = sequelize.define(
-    "InputEstoque", 
+const ItemEstoque = sequelize.define(
+    "ItemEstoque", 
     {
         idEstoque: {
             type: DataTypes.INTEGER,
@@ -37,11 +37,4 @@ const InputEstoque = sequelize.define(
     }
 );
 
-InputEstoque.associate = (models) => {
-    InputEstoque.hasMany(models.ItemInputEstoque, {
-        foreignKey: "idEstoque",
-        as: "itens"
-    });
-}
-
-module.exports = InputEstoque;
+module.exports = ItemEstoque;
