@@ -1,14 +1,13 @@
-// Funções de erro compartilhadas por todos os módulos (Clientes, Produtos, Funcionários...).
-// Ficam aqui pra não repetir o mesmo código em cada módulo.
+// Funções de erro compartilhadas por todos os módulos 
 
-// criarErro: cria um erro que carrega junto o código HTTP (400, 404, 409...).
-// É usada no SERVICE, quando uma regra é quebrada. Exemplo:
-//   throw criarErro(404, "Cliente não encontrado.");
+
+// criarErro: cria um erro que carrega junto o código HTTP 
+// É usada no SERVICE quando uma regra é quebrada
 function criarErro(status, mensagem) {
     
     const erro = new Error(mensagem);
 
-    // Gruda o código HTTP no erro, pra saber depois qual código devolver.
+    // Gruda o código HTTP no erro, pra saber depois qual código devolver
     erro.status = status;
 
     // Devolve o erro pronto pra ser lançado com "throw".
@@ -22,11 +21,12 @@ function responderErro(res, erro) {
         return res.status(erro.status).json({ erro: erro.message });
     }
 
-    // Se não tem "status", é um erro inesperado (banco fora do ar, bug...).
-    // Mostra os detalhes só no terminal, pra você investigar.
+   
+
+    //Se não tem status é um erro inesperado então só mostra os detalhes no terminal
     console.error(erro);
 
-    // E manda ao usuário só uma mensagem genérica, sem detalhe técnico.
+    // E manda ao usuário uma mensagem genérica sem detalhes técnicos
     return res.status(500).json({ erro: "Erro interno do servidor." });
 }
 
