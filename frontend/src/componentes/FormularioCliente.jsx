@@ -165,6 +165,7 @@ function FormularioCliente({cliente, aoCancelar, aoSalvar}){
         <Tabs
           value={aba}
           onChange={(evento, novaAba) => setAba(novaAba)}
+           variant="fullWidth" 
           sx={{
             mb: 3,
             "& .MuiTabs-indicator": { backgroundColor: VERDE },
@@ -222,7 +223,7 @@ function FormularioCliente({cliente, aoCancelar, aoSalvar}){
           bgcolor: "white",
           border: "1px solid #ddd",
           borderRadius: 2,
-          p: 3,
+          p: { xs: 2, sm: 3 },
         }}
       >
  

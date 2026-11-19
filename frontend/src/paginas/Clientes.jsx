@@ -164,21 +164,16 @@ if (tela === "formulario") {
 
 
 
-
-
-
-
-
-
-
   return (
     <Box>
       <Box
         sx={{
-          display: "flex", // coloca os filhos lado a lado
-          justifyContent: "space-between", // um encostado em cada ponta
-          alignItems: "flex-start", // alinha os dois pelo topo
-          mb: 3, // margem embaixo (3 x 8px = 24px)
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "flex-start",
+          flexWrap: "wrap", // se não couber faz o botão desce para a linha de baixo
+          gap: 2, // espaço entre o título e o botão
+          mb: 3,
         }}
       >
         <Box>
@@ -213,17 +208,17 @@ if (tela === "formulario") {
           bgcolor: "white",
           border: "1px solid #ddd",
           borderRadius: 2, // cantos arredondados
-          p: 3, // espaço interno (24px)
+          p: { xs: 2, sm: 3 }, //  16px no celular, 24px em telas maiores
         }}
       >
                 
-            <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
+            <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, gap: 2, mb: 2 }}>
             <TextField
                 size="small"
                 placeholder="Buscar por nome, telefone ou CPF/CNPJ"
                 value={busca}
                 onChange={(e) => setBusca(e.target.value)}
-                sx={{ width: 380 }}
+                sx={{ flex: { xs: "none", sm: 1 } }}
             />
 
             {/* select faz o TextField virar uma lista de opções */}
@@ -233,7 +228,7 @@ if (tela === "formulario") {
                 label="Ordenar por"
                 value={ordenarPor}
                 onChange={(e) => setOrdenarPor(e.target.value)}
-                sx={{ width: 180 }}
+                sx={{ width: { xs: "100%", sm: 180 } }}
             >
                 <MenuItem value="nome">Nome</MenuItem>
                 <MenuItem value="telefone">Telefone</MenuItem>
@@ -249,7 +244,7 @@ if (tela === "formulario") {
 
         {/* -------- TABELA -------- */}
         <TableContainer>
-          <Table>
+          <Table  sx={{ minWidth: 700 }}>
             {/* Cabeçalho: uma linha verde com os nomes das colunas */}
             <TableHead>
               <TableRow sx={{ bgcolor: VERDE }}>
