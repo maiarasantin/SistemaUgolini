@@ -15,6 +15,7 @@ import Drawer from "@mui/material/Drawer"; // Drawer é a gaveta que desliza por
 //   paginaAtual = qual página está aberta (pra destacar o item certo)
 //   aoSelecionar  = função que o menu chama quando alguém clica num item
 // aberto e aoFechar vêm do App e controlam a gaveta de responsividade
+//  perfil = perfil de quem está logado "admin" ou "vendedor", usado para mostrar só o que é permitido
 export default function MenuLateral({ paginaAtual, aoSelecionar, perfil , aberto, aoFechar }) {
 
     const itensVisiveis = ITENS.filter((item) => item.perfis.includes(perfil)); // Só os itens que o perfil pode ver
