@@ -3,6 +3,7 @@ import axios from "axios";
 import { formatarCpf, formatarTelefone, formatarData } from "../utils/formatacao";
 import { pegarMensagemErro } from "../utils/mensagemErro";
 import FormularioVendedor from "../componentes/FormularioVendedor";
+import DialogoExcluir from "../componentes/DialogoExcluir";
 
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
@@ -19,6 +20,7 @@ import TableRow from "@mui/material/TableRow";
 import AddIcon from "@mui/icons-material/Add";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutlineOutlined";
+import Snackbar from "@mui/material/Snackbar";
 
 const VERDE = "#2f5a45";
 
@@ -30,6 +32,11 @@ function Vendedores() {
   const [erro, setErro] = useState("");
   const [busca, setBusca] = useState("");
   const [ordenarPor, setOrdenarPor] = useState("nome");
+
+    
+  const [vendedorExcluindo, setVendedorExcluindo] = useState(null);
+  const [excluindo, setExcluindo] = useState(false);
+  const [mensagemSucesso, setMensagemSucesso] = useState(""); //Mensagem de sucesso depois de cadastro feito
 
 
   const [tela, setTela] = useState("lista");
@@ -118,6 +125,13 @@ function Vendedores() {
 
   
   function aoSalvarVendedor() {
+
+     if (vendedorEditando) {
+      setMensagemSucesso("Vendedor atualizado com sucesso.");
+    } else {
+      setMensagemSucesso("Vendedor cadastrado com sucesso.");
+    }
+
     setRecarregar(recarregar + 1);
     setTela("lista");
   }
@@ -136,8 +150,27 @@ function Vendedores() {
   }
 
 
+function pedirExclusao(vendedor){
+  setVendedorExcluindo(vendedor);
+}
 
+async function confirmarExclusao(){
+  setExcluindo(true);
 
+try{
+  await axios.delete("/funcionarios/" + vendedorExcluindo.id);
+
+  setRecarregar(recarregar +1);
+  setErro("");
+  setMensagemSucesso("Vendedor excluído com sucesso.");
+} catch( error){
+  setErro(pegarMensagemErro(error)); //Mostra a mensagem de erro do back
+} finally{
+  setExcluindo(false);
+  setVendedorExcluindo(null);
+}
+
+}
 
 
 
@@ -274,6 +307,7 @@ function Vendedores() {
                       size="small"
                       color="error"
                       startIcon={<DeleteOutlineIcon />}
+                      onClick={() => pedirExclusao(vendedor)}
                     >
                       Excluir
                     </Button>
@@ -292,7 +326,35 @@ function Vendedores() {
           {vendedores.length} vendedores encontrados.
         </Typography>
       </Box>
+
+      {/* Janelinha de confirmação */}
+      <DialogoExcluir
+        aberto={vendedorExcluindo !== null}
+        nomeItem={vendedorExcluindo ? vendedorExcluindo.nome : ""}
+        excluindo={excluindo}
+        aoCancelar={() => setVendedorExcluindo(null)}
+        aoConfirmar={confirmarExclusao}
+      />
+
+
+       {/* Aviso verde que some sozinho depois de 4 segundos */}
+      <Snackbar
+        open={mensagemSucesso !== ""}
+        autoHideDuration={4000}
+        onClose={() => setMensagemSucesso("")} // Limpa o texto e o aviso some
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}   // Onde o aviso aparece
+      >
+        <Alert
+          severity="success"
+          variant="filled"
+          onClose={() => setMensagemSucesso("")} // O botão X que fecha o aviso antes dos 4 segundos
+        >
+          {mensagemSucesso}
+        </Alert>
+      </Snackbar>
     </Box>
+
+    
   );
 }
 

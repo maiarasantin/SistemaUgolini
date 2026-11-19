@@ -50,6 +50,11 @@ export default function App() {
     });
 
     const [paginaAtual, setPaginaAtual] = useState("catalogo");
+
+        
+    const [menuAberto, setMenuAberto] = useState(false); // Se o menu lateral está aberto no caso de celular (responsividade)
+    
+
     
 
 
@@ -134,7 +139,7 @@ export default function App() {
         return <Box sx={{ p: 3 }}>Carregando...</Box>;
     }
 
-    const itemAtual = ITENS.find((item) => item.id === paginaAtual);// .find percorre ITENS e devolve o PRIMEIRO item cujo id é igual à página aberta.
+    const itemAtual = ITENS.find((item) => item.id === paginaAtual);// .find percorre ITENS e devolve o PRIMEIRO item cujo id é igual à página aberta
 
     let tituloPagina = "";
 
@@ -152,11 +157,17 @@ export default function App() {
     <Box sx={{ display: "flex" }}>
         <MenuLateral paginaAtual={paginaAtual} 
         aoSelecionar={setPaginaAtual} 
-        perfil={usuario.perfil}/>
+        perfil={usuario.perfil}
+        aberto={menuAberto} // Responsividade do menu
+        aoFechar={() => setMenuAberto(false)}/> {/*fechar a barra do menu*/}
 
-       {/* Lado direito: ocupa o resto da largura. Barra em cima, conteúdo embaixo. */}
+       {/* Lado direito: Barra em cima e o conteúdo embaixo */}
         <Box sx={{ flexGrow: 1 , minWidth: 0 }}>
-            <BarraSuperior aoSair={handleLogout} tituloPagina={tituloPagina}  usuario={usuario} />
+            <BarraSuperior 
+             aoSair={handleLogout}
+             tituloPagina={tituloPagina} 
+             usuario={usuario} 
+             aoAbrirMenu={() => setMenuAberto(true)}  /> {/*abrir a barra do menu em celulares*/}
 
             <Box component="main" sx={{ p: 3 }}>
                 {paginaAtual === "catalogo" && <Inicio />}
