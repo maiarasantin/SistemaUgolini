@@ -1,4 +1,5 @@
 const { Op } = require("sequelize");
+const { escaparLike } = require("../utils/validacoes");
 const Cliente = require("../database/models/cliente.model");
 
 
@@ -28,8 +29,8 @@ async function listar({ busca, buscaNumeros, ordenarPor, direcao}) {
        const condicoes = [];
 
        if(busca){
-          condicoes.push({ nome: { [Op.iLike]: `%${busca}%` } }); // Op.iLike = "contém o texto", sem diferenciar maiúscula de minúscula.
-       }                                                          // Os % dos dois lados significam "qualquer coisa antes e depois".
+            condicoes.push({ nome: { [Op.iLike]: `%${escaparLike(busca)}%` } }); // Op.iLike = "contém o texto", sem diferenciar maiúscula de minúscula.
+       }                                                                         // O escaparLike faz um "%" ou "_" digitado ser tratado como letra comum
     
 
          if (buscaNumeros) {
