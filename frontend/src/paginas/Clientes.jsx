@@ -47,9 +47,8 @@ const [mensagemSucesso, setMensagemSucesso] = useState("");  //Mensagem de suces
     useEffect(() => {
       async function carregarClientes() {
         try {
-          // params monta a URL sozinho: /clientes?busca=texto
           const resposta = await axios.get("/clientes", { params: { busca, ordenarPor  } });
-          setClientes(resposta.data.clientes); //resposta.data é o conteúdo que a API respondeu o set aq guarda a lista e faz o react redesenhar a tabela
+          setClientes(resposta.data.clientes); //resposta.data é o conteúdo que a API respondeu o set guarda a lista e faz o react redesenhar a tabela
           setErro(""); // limpa um erro antigo, se a busca anterior tinha falhado
         } catch (error) {
           setErro(pegarMensagemErro(error));
@@ -58,18 +57,17 @@ const [mensagemSucesso, setMensagemSucesso] = useState("");  //Mensagem de suces
         }
       }
 
-      // Espera 400 ms depois da última tecla antes de buscar.
+      // Espera 400 ms depois da última tecla antes de buscar
       const espera = setTimeout(() => {
         carregarClientes();
       }, 400);
 
-      // Se a pessoa digitar de novo antes dos 400 ms, cancela a espera anterior.
+      // Se a pessoa digitar de novo antes dos 400 ms ele cancela a espera anterior
       return () => clearTimeout(espera);
     }, [busca, ordenarPor, recarregar ]); // roda de novo toda vez que a busca mudar
 
    
 
-    // a mensagem que aparece em cima da tabela
   let aviso = null;
 
   if (erro) {
@@ -141,11 +139,6 @@ function editarCliente(cliente){
 }
 
 
-
-
-
-
-// Se a tela é o formulário, mostra só ele e para por aqui
 if (tela === "formulario") {
   return ( 
     <FormularioCliente
@@ -172,7 +165,7 @@ if (tela === "formulario") {
           justifyContent: "space-between",
           alignItems: "flex-start",
           flexWrap: "wrap", // se não couber faz o botão desce para a linha de baixo
-          gap: 2, // espaço entre o título e o botão
+          gap: 2, 
           mb: 3,
         }}
       >
@@ -191,11 +184,11 @@ if (tela === "formulario") {
         </Box>
 
         <Button
-          variant="contained" // botão preenchido
-          startIcon={<AddIcon />} // ícone de +
-          sx={{ bgcolor: VERDE }} // cor de fundo verde
+          variant="contained" 
+          startIcon={<AddIcon />} 
+          sx={{ bgcolor: VERDE }} 
           onClick={() => {
-             setClienteEditando(null);  //Pode ter dois valores o null que é ninguem está sendo editado então precisa vim em branco pois é cadastro novo
+             setClienteEditando(null);  //Pode ter dois valores o null que é quando ninguem está sendo editado, então precisa vim em branco porque é cadastro novo
                setTela("formulario");   //Ou objeto cliente que seria a edição desse cliente
           }}
         >
@@ -207,7 +200,7 @@ if (tela === "formulario") {
         sx={{
           bgcolor: "white",
           border: "1px solid #ddd",
-          borderRadius: 2, // cantos arredondados
+          borderRadius: 2, 
           p: { xs: 2, sm: 3 }, //  16px no celular, 24px em telas maiores
         }}
       >
@@ -238,8 +231,7 @@ if (tela === "formulario") {
 
 
 
-        {/* Mostra a faixa de erro ou o "Carregando...". Se não tem nada
-                    pra avisar nada aparece. */}
+        {/* Mostra a faixa de erro ou o "Carregando..." */}
         {aviso}
 
         {/* -------- TABELA -------- */}
@@ -267,8 +259,9 @@ if (tela === "formulario") {
             </TableHead>
 
             <TableBody>
+
               {/* Mostra a linha "Nenhum cliente encontrado." quando a lista está
-               vazia. Nos outros casos linhaVazia é null e não aparece nada. */}
+               vazia. Nos outros casos linhaVazia é null e não aparece nada*/}
               {linhaVazia}
 
               {clientes.map((cliente) => (
