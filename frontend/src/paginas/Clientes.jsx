@@ -20,6 +20,7 @@ import AddIcon from "@mui/icons-material/Add";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutlineOutlined";
 import MenuItem from "@mui/material/MenuItem";
+import Snackbar from "@mui/material/Snackbar";
 
 const VERDE = "#2f5a45";
 
@@ -38,6 +39,7 @@ function Clientes() {
  
 const [clienteExcluindo, setClienteExcluindo] = useState(null);  // Qual cliente está na caixinha de confirmação se estiver null ela não está aberta
 const [excluindo, setExcluindo] = useState(false);
+const [mensagemSucesso, setMensagemSucesso] = useState("");  //Mensagem de sucesso depois de ações feitas
 
   
 
@@ -109,6 +111,7 @@ async function confirmarExclusao() {
     await axios.delete("/clientes/" + clienteExcluindo.idCliente);
     setRecarregar(recarregar + 1);
     setErro("");
+    setMensagemSucesso("Cliente excluído com sucesso.");            
   } catch (error) {
     setErro(pegarMensagemErro(error));
   } finally {
@@ -121,8 +124,13 @@ async function confirmarExclusao() {
 
 // Chamada pelo formulário quando o cliente foi salvo
 function aoSalvarCliente() {
-  setRecarregar(recarregar + 1); //Busca a lista de novo
-  setTela("lista");              // Volta pra lista
+  if (clienteEditando) { // Se era uma edição aparece mensagem de atualizado caso contrário era um cadastro
+    setMensagemSucesso("Cliente atualizado com sucesso.");
+  } else {
+    setMensagemSucesso("Cliente cadastrado com sucesso.");
+  }
+  setRecarregar(recarregar + 1); // Busca a lista de novo
+  setTela("lista"); // Volta pra lista
 }
 
 
@@ -320,6 +328,21 @@ if (tela === "formulario") {
      aoCancelar={() => setClienteExcluindo(null)}
      aoConfirmar={confirmarExclusao}
 />
+       {/* Aviso verde que some sozinho depois de 4 segundos */}
+      <Snackbar
+        open={mensagemSucesso !== ""}
+        autoHideDuration={4000}
+        onClose={() => setMensagemSucesso("")} // Limpa o texto e o aviso some
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}   // Onde o aviso aparece
+      >
+        <Alert
+          severity="success"
+          variant="filled"
+          onClose={() => setMensagemSucesso("")} // O botão X que fecha o aviso antes dos 4 segundos
+        >
+          {mensagemSucesso}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }

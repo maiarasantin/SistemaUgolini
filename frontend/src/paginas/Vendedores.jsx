@@ -36,7 +36,7 @@ function Vendedores() {
     
   const [vendedorExcluindo, setVendedorExcluindo] = useState(null);
   const [excluindo, setExcluindo] = useState(false);
-  const [mensagemSucesso, setMensagemSucesso] = useState(""); //Mensagem de sucesso depois de cadastro feito
+  const [mensagemSucesso, setMensagemSucesso] = useState(""); //Mensagem de sucesso depois de ações feitas
 
 
   const [tela, setTela] = useState("lista");
