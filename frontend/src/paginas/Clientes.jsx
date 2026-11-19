@@ -3,6 +3,7 @@ import axios from "axios";
 import FormularioCliente from "../componentes/FormularioCliente";
 import { formatarTelefone, formatarDocumento } from "../utils/formatacao";
 import { pegarMensagemErro } from "../utils/mensagemErro";
+import DialogoExcluir from "../componentes/DialogoExcluir";
 import Alert from "@mui/material/Alert";
 
 import Box from "@mui/material/Box";
@@ -32,6 +33,11 @@ function Clientes() {
   const [tela, setTela] = useState("lista");  // Qual tela mostrar: "lista" ou "formulario".
   const [recarregar, setRecarregar] = useState(0); // Quando o número muda, o useEffect busca a lista de novo.
   const [clienteEditando, setClienteEditando] = useState(null); // null = cadastro novo; senão, o cliente que está sendo editado
+
+
+ 
+const [clienteExcluindo, setClienteExcluindo] = useState(null);  // Qual cliente está na caixinha de confirmação se estiver null ela não está aberta
+const [excluindo, setExcluindo] = useState(false);
 
   
 
@@ -89,33 +95,25 @@ function Clientes() {
 
 
 
-  //BOTÃO EXCLUIR
-  async function excluirCliente(cliente) {
-  // confirm abre uma caixinha com OK e Cancelar.
-  // Devolve true se a pessoa clicou em OK, e false se cancelou.
-  const confirmou = window.confirm("Deseja excluir " + cliente.nome + "?");
+  
+  // BOTÃO EXCLUIR: só abre a caixinha de confirmação 
+function pedirExclusao(cliente) {
+  setClienteExcluindo(cliente);
+}
 
-  // Se cancelou, para por aqui e não faz nada.
-  if (confirmou === false) {
-    return;
-  }
+// Se for confirmada a exclusão
+async function confirmarExclusao() {
+  setExcluindo(true);
 
   try {
-    
-    await axios.delete("/clientes/" + cliente.idCliente);
-
-    // Se deu certo monta uma lista nova SEM esse cliente
-    setClientes(clientes.filter((c) => c.idCliente !== cliente.idCliente)); // filter mantém só quem tem id diferente do que foi excluído.
+    await axios.delete("/clientes/" + clienteExcluindo.idCliente);
+    setRecarregar(recarregar + 1);
+    setErro("");
   } catch (error) {
-    
-    let mensagem = "Não foi possível excluir o cliente. Tente novamente.";
-
-    // Se o back mandou uma mensagem ela será usada
-    if (error.response && error.response.data.erro) {
-      mensagem = error.response.data.erro;
-    }
-   
-    setErro(mensagem);
+    setErro(pegarMensagemErro(error));
+  } finally {
+    setClienteExcluindo(null);
+    setExcluindo(false);
   }
 }
 
@@ -296,7 +294,7 @@ if (tela === "formulario") {
                       size="small"
                       color="error" // vermelho padrão do MUI
                       startIcon={<DeleteOutlineIcon />}
-                    onClick={() => excluirCliente(cliente)}
+                    onClick={() => pedirExclusao(cliente)}
                     >
                       Excluir
                     </Button>
@@ -315,6 +313,13 @@ if (tela === "formulario") {
           {clientes.length} clientes encontrados.
         </Typography>
       </Box>
+      <DialogoExcluir
+     aberto={clienteExcluindo !== null}
+     nomeItem={clienteExcluindo ? clienteExcluindo.nome : ""}
+     excluindo={excluindo}
+     aoCancelar={() => setClienteExcluindo(null)}
+     aoConfirmar={confirmarExclusao}
+/>
     </Box>
   );
 }
