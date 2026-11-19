@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import FormularioCliente from "../componentes/FormularioCliente";
+import { formatarTelefone, formatarDocumento } from "../utils/formatacao";
+import { pegarMensagemErro } from "../utils/mensagemErro";
 import Alert from "@mui/material/Alert";
 
 import Box from "@mui/material/Box";
@@ -42,7 +44,7 @@ function Clientes() {
           setClientes(resposta.data.clientes); //resposta.data é o conteúdo que a API respondeu o set aq guarda a lista e faz o react redesenhar a tabela
           setErro(""); // limpa um erro antigo, se a busca anterior tinha falhado
         } catch (error) {
-          setErro("Não foi possível carregar os clientes. Tente Novamente.");
+          setErro(pegarMensagemErro(error));
         } finally {
           setCarregando(false); //roda sempre mesmo que deu certo ou errado
         }
@@ -273,9 +275,9 @@ if (tela === "formulario") {
                   {/* Nome em negrito */}
                   <TableCell sx={{ fontWeight: 600 }}>{cliente.nome}</TableCell>
 
-                  <TableCell>{cliente.telefone}</TableCell>
+                  <TableCell>{formatarTelefone(cliente.telefone)}</TableCell>
 
-                  <TableCell>{cliente.cpf || cliente.cnpj || "—"}</TableCell>
+                  <TableCell>{formatarDocumento(cliente.cpf || cliente.cnpj || "") || "—"}</TableCell>
 
                   <TableCell>{cliente.email || "—"}</TableCell>
 

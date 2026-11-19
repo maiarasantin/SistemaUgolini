@@ -22,6 +22,38 @@ export function formatarCpf(cpf) {
 }
 
 
+// Formata o CNPJ para que fique bonito no front
+export function formatarCnpj(valor) {
+  
+  const numeros = somenteNumeros(valor).slice(0, 14);
+
+  
+  return numeros
+    .replace(/^(\d{2})(\d)/, "$1.$2")
+    .replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3")
+    .replace(/\.(\d{3})(\d)/, ".$1/$2")
+    .replace(/(\d{4})(\d)/, "$1-$2");
+}
+
+
+
+export function formatarDocumento(valor) {
+  const numeros = somenteNumeros(valor);
+
+  // Se for 11 dígitos é CPF
+  if (numeros.length === 11) {
+    return formatarCpf(numeros);
+  }
+
+  // Se for  14 dígitos é CNPJ
+  if (numeros.length === 14) {
+    return formatarCnpj(numeros);
+  }
+
+  return valor || "";
+}
+
+
 
 
 export function formatarTelefone(telefone) {

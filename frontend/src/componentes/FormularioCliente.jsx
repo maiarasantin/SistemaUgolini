@@ -1,5 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
+import { formatarTelefone, formatarDocumento } from "../utils/formatacao";
+import { pegarMensagemErro } from "../utils/mensagemErro";
 
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
@@ -49,8 +51,8 @@ function FormularioCliente({cliente, aoCancelar, aoSalvar}){
       if (cliente) {
         dadosIniciais = {
           nome: cliente.nome || "",
-          telefone: cliente.telefone || "",
-          documento: cliente.cpf || cliente.cnpj || "",
+          telefone: formatarTelefone(cliente.telefone),
+          documento: formatarDocumento(cliente.cpf || cliente.cnpj || ""),
           email: cliente.email || "",
           cep: cliente.cep || "",
            rua: cliente.rua || "",
@@ -89,6 +91,9 @@ function FormularioCliente({cliente, aoCancelar, aoSalvar}){
          setDados({ ...dados, [evento.target.name]: evento.target.value });
     }
 
+
+
+
     async function salvar(){
         if(dados.nome.trim() === "" || dados.telefone.trim() === ""  ){
             setErro("Preencha o nome e o telefone.");
@@ -115,14 +120,8 @@ function FormularioCliente({cliente, aoCancelar, aoSalvar}){
 
         aoSalvar();
     } catch (error){
-        let mensagem = "Não foi possível cadastrar o cliente. Tente novamente.";
         
-        //caso o backend tenha explicado o problema, mostra o texto dele
-        if(error.response && error.response.data.erro){
-            mensagem = error.response.data.erro;
-        }
-
-        setErro(mensagem);
+        setErro(pegarMensagemErro(error)); //Mostra a mensagem que o back mandou e caso não exista responde uma mensagem pronta
         setSalvando(false);
     }
 }
