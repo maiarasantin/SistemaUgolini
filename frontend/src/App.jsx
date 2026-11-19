@@ -4,6 +4,7 @@ import Login from "./paginas/Login";
 import Inicio from "./paginas/Inicio";
 import Clientes from "./paginas/Clientes";
 import Categorias from "./paginas/Categorias"; 
+import Vendedores from "./paginas/Vendedores";
 import Box from "@mui/material/Box";
 import MenuLateral from "./componentes/MenuLateral";
 import BarraSuperior from "./componentes/BarraSuperior";
@@ -154,13 +155,14 @@ export default function App() {
         perfil={usuario.perfil}/>
 
        {/* Lado direito: ocupa o resto da largura. Barra em cima, conteúdo embaixo. */}
-        <Box sx={{ flexGrow: 1 }}>
+        <Box sx={{ flexGrow: 1 , minWidth: 0 }}>
             <BarraSuperior aoSair={handleLogout} tituloPagina={tituloPagina}  usuario={usuario} />
 
             <Box component="main" sx={{ p: 3 }}>
                 {paginaAtual === "catalogo" && <Inicio />}
                 {paginaAtual === "clientes" && <Clientes />}
                 {paginaAtual === "categorias" && <Categorias />}
+                {paginaAtual === "vendedores" && <Vendedores />}
             </Box>
         </Box>
     </Box>
