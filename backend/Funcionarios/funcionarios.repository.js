@@ -35,6 +35,9 @@ async function listar({ busca, buscaNumeros, ordenarPor, direcao }) {
   });
 }
 
+
+
+
 async function buscarPorId(id) {
   return Funcionario.findOne({
     where: { id, eAdmin: false },
@@ -53,6 +56,8 @@ async function atualizar(funcionario, dados) {
 async function excluir(funcionario) {
   return funcionario.destroy();
 }
+
+
 
 // --------FUNÇÕES USADAS PELO SERVICE PARA EVITAR CPF E EMAIL REPETIDOS -----
 

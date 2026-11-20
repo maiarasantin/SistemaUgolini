@@ -39,6 +39,8 @@ async function listar({ busca, buscaNumeros, ordenarPor, direcao }) {
   return Cliente.findAll({ where, order: [[ordenarPor, direcao]] });
 }
 
+
+
 async function buscarPorId(id) {
   return Cliente.findByPk(id);
 }

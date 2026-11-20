@@ -7,10 +7,14 @@ const SALT_ROUNDS = 12; // Quantas voltas o bcrypt da para embaralhar a senha
 
 const CAMPOS_ORDENAVEIS = ["nome", "dataContratacao", "status"];
 
+
+
 function somenteNumeros(valor) {
   const texto = String(valor);
   return texto.replace(/\D/g, ""); // Qualquer coisa que não seja digito será trocado por ""
 }
+
+
 
 //Devolve a data de hoje no formato AAAA-MM-DD, para não aceitar contratação no futuro
 function dataDeHoje() {
@@ -19,6 +23,8 @@ function dataDeHoje() {
   const dia = String(hoje.getDate()).padStart(2, "0");
   return `${hoje.getFullYear()}-${mes}-${dia}`;
 }
+
+
 
 function tratarDados(dados, senhaObrigatoria) {
   if (!dados) {
@@ -151,6 +157,8 @@ function tratarDados(dados, senhaObrigatoria) {
   };
 }
 
+
+
 // Confere se já existe outro funcionário com o mesmo CPF ou e-mail
 async function validarCpfeEmailUnicos(dados, idAtual) {
   const funcComCpf = await funcionariosRepository.buscarPorCpf(dados.cpf); // Quem é o dono desse cpf
@@ -170,6 +178,9 @@ async function validarCpfeEmailUnicos(dados, idAtual) {
   }
 }
 
+
+
+
 // Confere o id e busca o vendedor
 async function validacaoIDeVendedorExistente(id) {
   const numero = validarId(id, "Identificador de vendedor inválido.");
@@ -183,9 +194,14 @@ async function validacaoIDeVendedorExistente(id) {
   return vendedor;
 }
 
+
+
 async function buscarPorId(id) {
   return validacaoIDeVendedorExistente(id);
 }
+
+
+
 
 async function listar(consulta) {
   const busca = String(consulta.busca ?? "").trim(); // Pega o que veio na URL  e tira os espaços do começo e do fim
@@ -200,6 +216,9 @@ async function listar(consulta) {
   });
 }
 
+
+
+
 async function criar(dados) {
   const dadosTratados = tratarDados(dados, true);
 
@@ -211,6 +230,9 @@ async function criar(dados) {
 
   return funcionariosRepository.buscarPorId(criado.id); // Busca de novo para devolver sem a senha
 }
+
+
+
 
 async function atualizar(id, dados) {
   const vendedor = await validacaoIDeVendedorExistente(id);
@@ -232,6 +254,9 @@ async function atualizar(id, dados) {
 
   return funcionariosRepository.buscarPorId(vendedor.id);
 }
+
+
+
 
 async function excluir(id) {
   const vendedor = await validacaoIDeVendedorExistente(id);

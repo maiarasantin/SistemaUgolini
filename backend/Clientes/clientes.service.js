@@ -4,11 +4,15 @@ const { limparTexto, validarId, lerOrdenacao } = require("../utils/validacoes");
 
 const CAMPOS_ORDENAVEIS = ["nome", "telefone", "email"]; // Evitar que alguém mande um nome de campo qualquer pela URL
 
+
+
 // Tira tudo que não é número: "(49) 99876-5432" vira "49998765432".
 function somenteNumeros(valor) {
   const texto = String(valor); // Tem que converter em string antes por conta do replace que só funciona com texto
   return texto.replace(/\D/g, ""); // Qualquer coisa que não seja digito troque por ""
 }
+
+
 
 // Valida os dados que vieram do front e monta o objeto pro banco
 function tratarDados(dados) {
@@ -154,6 +158,7 @@ function tratarDados(dados) {
   };
 }
 
+
 // Confere se já existe outro cliente com o mesmo CPF ou CNPJ
 async function validarDocumentoUnico(dados, idAtual) {
   if (dados.cpf) {
@@ -172,6 +177,7 @@ async function validarDocumentoUnico(dados, idAtual) {
   }
 }
 
+
 // Confere o id e busca o cliente
 async function validacaoIDeClienteExistente(id) {
   // Confere se o id é um número inteiro positivo e se não for, dá erro
@@ -186,9 +192,13 @@ async function validacaoIDeClienteExistente(id) {
   return cliente;
 }
 
+
+
 async function buscarPorId(id) {
   return validacaoIDeClienteExistente(id);
 }
+
+
 
 // Lista os clientes com busca por texto e ordenação
 async function listar(consulta) {
@@ -214,11 +224,17 @@ async function listar(consulta) {
   return clientes; //Devolve a lista pro controller
 }
 
+
+
+
 async function criar(dados) {
   const novo = tratarDados(dados); // Valida os dados novos
   await validarDocumentoUnico(novo, null); //Garante que o cpf/cnpj não seja duplicado
   return clientesRepository.criar(novo);
 }
+
+
+
 
 async function atualizar(id, dados) {
   const cliente = await validacaoIDeClienteExistente(id); //Confere se o id ta certo e se o cliente existe
@@ -226,6 +242,9 @@ async function atualizar(id, dados) {
   await validarDocumentoUnico(novo, cliente.idCliente); // Garante que o cpf/cnpj não seja duplicado
   return clientesRepository.atualizar(cliente, novo);
 }
+
+
+
 
 //Se o cliente já tem pedido, ele não pode ser excluido do banco
 async function excluir(id) {

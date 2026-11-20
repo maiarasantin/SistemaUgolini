@@ -35,6 +35,8 @@ const configureJwtStrategy = () => {
   );
 };
 
+
+
 // Middleware para autenticação JWT
 const requireJWTAuth = (req, res, next) => {
   passport.authenticate(
@@ -60,6 +62,9 @@ const requireJWTAuth = (req, res, next) => {
   )(req, res, next);
 };
 
+
+
+
 // Middleware reutilizável para verificar o perfil do funcionário
 // Deve ser usado APÓS o requireJWTAuth
 const verificarPerfilMiddleware = (...perfisPermitidos) => {
@@ -82,6 +87,9 @@ const verificarPerfilMiddleware = (...perfisPermitidos) => {
     next(); //Perfil permitido segue
   };
 };
+
+
+
 
 // Middleware para verificar token e depois o perfil
 const requirePerfil = (...perfisPermitidos) => {

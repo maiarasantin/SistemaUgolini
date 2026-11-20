@@ -10,6 +10,7 @@ const SALT_ROUNDS = 12;
 // Hash de mentira, pra demorar o mesmo tempo quando o email não existe
 const HASH_FICTICIO = bcrypt.hashSync("senha-ficticia", SALT_ROUNDS);
 
+
 async function autenticarFuncionario(emailRecebido, senha) {
   // Só aceita texto. Se vier número, objeto ou lista, recusa antes de usar
   if (typeof emailRecebido !== "string" || typeof senha !== "string") {
@@ -38,6 +39,9 @@ async function autenticarFuncionario(emailRecebido, senha) {
 
   return funcionario;
 }
+
+
+
 
 // Cria o token JWT do funcionário e vence depois do prazo definido (1 hora se o .env não disser)
 function gerarToken(funcionario) {
