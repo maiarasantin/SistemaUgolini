@@ -1,7 +1,7 @@
 const bcrypt = require("bcrypt");
 const funcionariosRepository = require("./funcionarios.repository");
 const { criarErro } = require("../utils/erros");
-const { limparTexto, validarId } = require("../utils/validacoes");
+const { limparTexto, validarId , lerOrdenacao } = require("../utils/validacoes");
 
 
 
@@ -88,7 +88,6 @@ function tratarDados(dados, senhaObrigatoria){
 
       const dataContratacao = String(dados.dataContratacao ?? "").trim();
 
-
       //Testa o formato porque ele tem que ser AAAA-MM-DD
     if (!/^\d{4}-\d{2}-\d{2}$/.test(dataContratacao)) {
         throw criarErro(400, "Informe a data de contratação.");
@@ -154,7 +153,7 @@ function tratarDados(dados, senhaObrigatoria){
 }
 
 
-
+// Confere se já existe outro funcionário com o mesmo CPF ou e-mail
 async function validarCpfeEmailUnicos(dados, idAtual) {
 
     const funcComCpf = await funcionariosRepository.buscarPorCpf(dados.cpf); // Quem é o dono desse cpf
@@ -167,19 +166,19 @@ async function validarCpfeEmailUnicos(dados, idAtual) {
     const funcComEmail = await funcionariosRepository.buscarPorEmail(dados.email);
 
     if(funcComEmail && funcComEmail.id !== idAtual){
-    throw criarErro(409,"Já existe um funcionário cadastrado com esse Email.")
+    throw criarErro(409,"Já existe um funcionário cadastrado com esse e-mail.")
     }
     
 }
 
-
+// Confere o id e busca o vendedor
 async function  validacaoIDeVendedorExistente(id) {
     const numero = validarId(id, "Identificador de vendedor inválido.");
 
     const vendedor = await funcionariosRepository.buscarPorId(numero);
 
     if(!vendedor){
-        throw criarErro(404, "Vendedor não encontrado");
+        throw criarErro(404, "Vendedor não encontrado.");
     }
 
     return vendedor;
@@ -200,23 +199,13 @@ async function listar(consulta) {
   
     const busca = String(consulta.busca ?? "").trim();   // Pega o que veio na URL  e tira os espaços do começo e do fim
 
-    
-    let ordenarPor = consulta.ordenarPor;
+    const ordenacao = lerOrdenacao(consulta, CAMPOS_ORDENAVEIS, "nome");
 
-    if (!ordenarPor) {
-        ordenarPor = "nome"; // Usa nome por padrão
-    }
-
-    // Só aceita ordenar pelos campos permitidos
-    if (!CAMPOS_ORDENAVEIS.includes(ordenarPor)) {
-        throw criarErro(400, "Campo de ordenação inválido.");
-    }
-
-    return funcionariosRepository.listar({
+   return funcionariosRepository.listar({
         busca: busca,
         buscaNumeros: somenteNumeros(busca),  
-        ordenarPor: ordenarPor,
-        direcao: "ASC",                       // Sempre crescente
+        ordenarPor: ordenacao.ordenarPor,
+        direcao: ordenacao.direcao,
     });
 }
 
@@ -241,6 +230,10 @@ async function atualizar(id, dados) {
     const dadosTratados = tratarDados(dados, false);
 
     await validarCpfeEmailUnicos(dadosTratados, vendedor.id);
+
+    if (dados.status === undefined) {
+        dadosTratados.status = vendedor.status; // Se o pedido não mandou status, mantém o que o vendedor já tinha
+    }
 
     if(dadosTratados.senha !== ""){
 
