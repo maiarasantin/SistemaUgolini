@@ -8,7 +8,7 @@ const cors = require("cors");
 const passport = require("passport");
 
 // Traz a função que ensina o Passport a ler tokens JWT
-const { configureJwtStrategy} = require("./Auth/auth.config");
+const { configureJwtStrategy } = require("./Auth/auth.config");
 const authRouter = require("./Auth/auth.router");
 
 const categoriasRouter = require("./Categorias/categorias.router");
@@ -22,7 +22,6 @@ const PORT = process.env.PORT || 3010;
 
 app.use(cors());
 app.use(express.json());
-
 
 // Registra a estratégia JWT no Passport (ensina a ler o token).
 // Sem isso o Passport não sabe validar nada
@@ -41,10 +40,9 @@ app.use("/produtos", produtosRouter);
 
 // Para rota que não existe
 app.use((req, res) => {
-    res.status(404).json({ erro: "Rota não encontrada." });
+  res.status(404).json({ erro: "Rota não encontrada." });
 });
 
 app.listen(PORT, () => {
-    console.log(`Servidor rodando em http://localhost:${PORT}`);
+  console.log(`Servidor rodando em http://localhost:${PORT}`);
 });
-

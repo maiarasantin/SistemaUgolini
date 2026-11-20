@@ -1,14 +1,11 @@
 const express = require("express");
-const funcionariosController  = require("./funcionarios.controller");
-const {requirePerfil} = require("../Auth/auth.config");
+const funcionariosController = require("./funcionarios.controller");
+const { requirePerfil } = require("../Auth/auth.config");
 
 const router = express.Router();
 
-
 // Todas as rotas  exigem token válido E perfil Admin
 router.use(requirePerfil("admin"));
-
-
 
 router.get("/", funcionariosController.listar);
 
