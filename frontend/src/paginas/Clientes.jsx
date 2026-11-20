@@ -26,13 +26,13 @@ const VERDE = "#2f5a45";
 
 
 function Clientes() {
-  const [clientes, setClientes] = useState([]); //lista de clientes
+  const [clientes, setClientes] = useState([]); // Lista de clientes
   const [carregando, setCarregando] = useState(true);  // Se está esperando a resposta da API
   const [erro, setErro] = useState("");
-  const [busca, setBusca] = useState(""); // o texto digitado no campo de busca, vai junto na chamada à API
+  const [busca, setBusca] = useState(""); // O texto digitado no campo de busca, vai junto na chamada à API
   const [ordenarPor, setOrdenarPor] = useState("nome");  // Critério de ordenação escolhido
-  const [tela, setTela] = useState("lista");  // Qual tela mostrar: "lista" ou "formulario".
-  const [recarregar, setRecarregar] = useState(0); // Quando o número muda, o useEffect busca a lista de novo.
+  const [tela, setTela] = useState("lista");  // Qual tela mostrar: "lista" ou "formulario"
+  const [recarregar, setRecarregar] = useState(0); // Quando o número muda, o useEffect busca a lista de novo
   const [clienteEditando, setClienteEditando] = useState(null); // null = cadastro novo; senão, o cliente que está sendo editado
 
 
@@ -49,11 +49,11 @@ const [mensagemSucesso, setMensagemSucesso] = useState("");  //Mensagem de suces
         try {
           const resposta = await axios.get("/clientes", { params: { busca, ordenarPor  } });
           setClientes(resposta.data.clientes); //resposta.data é o conteúdo que a API respondeu o set guarda a lista e faz o react redesenhar a tabela
-          setErro(""); // limpa um erro antigo, se a busca anterior tinha falhado
+          setErro(""); // Limpa um erro antigo, se a busca anterior tinha falhado
         } catch (error) {
           setErro(pegarMensagemErro(error));
         } finally {
-          setCarregando(false); //roda sempre mesmo que deu certo ou errado
+          setCarregando(false); 
         }
       }
 
@@ -64,7 +64,7 @@ const [mensagemSucesso, setMensagemSucesso] = useState("");  //Mensagem de suces
 
       // Se a pessoa digitar de novo antes dos 400 ms ele cancela a espera anterior
       return () => clearTimeout(espera);
-    }, [busca, ordenarPor, recarregar ]); // roda de novo toda vez que a busca mudar
+    }, [busca, ordenarPor, recarregar ]); // Roda de novo toda vez que a busca mudar
 
    
 
@@ -87,8 +87,7 @@ const [mensagemSucesso, setMensagemSucesso] = useState("");  //Mensagem de suces
   if (carregando === false && erro === "" && clientes.length === 0) {
     linhaVazia = (
       <TableRow>
-        <TableCell colSpan={5}>Nenhum cliente encontrado.</TableCell>{" "}
-        {/*colSpan é pra ocupar as 5 colunas*/}
+        <TableCell colSpan={5}>Nenhum cliente encontrado.</TableCell>
       </TableRow>
     );
   }
@@ -96,7 +95,7 @@ const [mensagemSucesso, setMensagemSucesso] = useState("");  //Mensagem de suces
 
 
   
-  // BOTÃO EXCLUIR: só abre a caixinha de confirmação 
+// BOTÃO EXCLUIR: só abre a caixinha de confirmação 
 function pedirExclusao(cliente) {
   setClienteExcluindo(cliente);
 }
@@ -122,7 +121,7 @@ async function confirmarExclusao() {
 
 // Chamada pelo formulário quando o cliente foi salvo
 function aoSalvarCliente() {
-  if (clienteEditando) { // Se era uma edição aparece mensagem de atualizado caso contrário era um cadastro
+  if (clienteEditando) {
     setMensagemSucesso("Cliente atualizado com sucesso.");
   } else {
     setMensagemSucesso("Cliente cadastrado com sucesso.");
@@ -151,12 +150,6 @@ if (tela === "formulario") {
 
 
 
-
-
-
-
-
-
   return (
     <Box>
       <Box
@@ -164,7 +157,7 @@ if (tela === "formulario") {
           display: "flex",
           justifyContent: "space-between",
           alignItems: "flex-start",
-          flexWrap: "wrap", // se não couber faz o botão desce para a linha de baixo
+          flexWrap: "wrap", 
           gap: 2, 
           mb: 3,
         }}
@@ -188,8 +181,8 @@ if (tela === "formulario") {
           startIcon={<AddIcon />} 
           sx={{ bgcolor: VERDE }} 
           onClick={() => {
-             setClienteEditando(null);  //Pode ter dois valores o null que é quando ninguem está sendo editado, então precisa vim em branco porque é cadastro novo
-               setTela("formulario");   //Ou objeto cliente que seria a edição desse cliente
+             setClienteEditando(null);  // null = cadastro novo (formulário em branco)
+               setTela("formulario");   
           }}
         >
           Novo cliente
@@ -201,7 +194,7 @@ if (tela === "formulario") {
           bgcolor: "white",
           border: "1px solid #ddd",
           borderRadius: 2, 
-          p: { xs: 2, sm: 3 }, //  16px no celular, 24px em telas maiores
+          p: { xs: 2, sm: 3 }, 
         }}
       >
                 
@@ -306,7 +299,7 @@ if (tela === "formulario") {
           color="text.secondary"
           sx={{ display: "block", textAlign: "right", mt: 1 }}
         >
-          {clientes.length} clientes encontrados.
+          {clientes.length} {clientes.length === 1 ? "cliente encontrado" : "clientes encontrados"}.
         </Typography>
       </Box>
       <DialogoExcluir

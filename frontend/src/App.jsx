@@ -27,14 +27,6 @@ function aplicarToken(token) {
     }
 }
 
-
-
-
-
-
-
-
-
 // ------------------------ COMPONENTE ------------------------
 
 export default function App() {
@@ -55,15 +47,6 @@ export default function App() {
     const [menuAberto, setMenuAberto] = useState(false); // Se o menu lateral está aberto no caso de celular (responsividade)
     
 
-    
-
-
-
-
-
-
-
-
     // ------------------------ FUNÇÕES ------------------------
 
     function handleLogin() {
@@ -72,8 +55,6 @@ export default function App() {
         setIsLoggedIn(true);
     }
 
-
-    
     function handleLogout() {
         localStorage.removeItem("token");  // Apaga o token guardado no navegador
         aplicarToken(null); // Tira o token do axios
@@ -83,8 +64,21 @@ export default function App() {
 
 
 
+    // ------------------------ TOKEN EXPIRADO ------------------------
+    // Se qualquer chamada voltar 401 (token expirado ou inválido), volta para o login
+    useEffect(() => {
+        const interceptor = axios.interceptors.response.use(
+            (resposta) => resposta,
+            (error) => {
+                if (error.response && error.response.status === 401) {
+                    handleLogout();
+                }
+                return Promise.reject(error);
+            }
+        );
 
-
+        return () => axios.interceptors.response.eject(interceptor);
+    }, []);
 
     // ------------------------ DESCOBRIR QUEM LOGOU ------------------------
 
@@ -97,7 +91,7 @@ export default function App() {
         async function buscarPerfil() {
             try {
                 const resposta = await axios.get("/auth/perfil");
-                setUsuario(resposta.data); // guarda nome, perfil e tal
+                setUsuario(resposta.data); // Guarda nome, perfil e etc
 
                 // Cada perfil começa em uma página que ele pode ver
                 if (resposta.data.perfil === "admin") {
@@ -105,7 +99,7 @@ export default function App() {
                 } else {
                     setPaginaAtual("catalogo");
                 }
-            } catch (error) {
+            } catch {
                 localStorage.removeItem("token"); // Apaga o token
                 aplicarToken(null); // Tira o token do axios
                 setIsLoggedIn(false);  
@@ -113,19 +107,8 @@ export default function App() {
         }
 
         buscarPerfil();
-    }, [isLoggedIn]); // roda quando isLoggedIn muda (login ou logout)
+    }, [isLoggedIn]); // Roda quando isLoggedIn muda (login ou logout)
     
-
-    
-
-
-
-
-
-
-
-
-
 
     // ------------------------ DECISÕES DE TELA ------------------------
 
@@ -133,8 +116,7 @@ export default function App() {
         return <Login onLogin={handleLogin} />;  // Se não está logada mostra só o login e passa a prop para o Login
     }
 
-
-      // Está logada, mas o back-end ainda não respondeu quem ela é então espera.
+    // Está logada, mas o back-end ainda não respondeu quem ela é então espera
     if (usuario === null) {
         return <Box sx={{ p: 3 }}>Carregando...</Box>;
     }
@@ -147,11 +129,6 @@ export default function App() {
         tituloPagina = itemAtual.texto; // Isso aqui serve para a barra superior
     }  
     
-
-
-
-
-
 
     return (
     <Box sx={{ display: "flex" }}>
@@ -167,7 +144,7 @@ export default function App() {
              aoSair={handleLogout}
              tituloPagina={tituloPagina} 
              usuario={usuario} 
-             aoAbrirMenu={() => setMenuAberto(true)}  /> {/*abrir a barra do menu em celulares*/}
+             aoAbrirMenu={() => setMenuAberto(true)}  /> {/*Abrir a barra do menu em celulares*/}
 
             <Box component="main" sx={{ p: 3 }}>
                 {paginaAtual === "catalogo" && <Catalogo />}
