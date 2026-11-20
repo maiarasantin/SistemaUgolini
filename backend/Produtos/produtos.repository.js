@@ -46,7 +46,7 @@ async function listar({
         {
             model: SubCategoria,
             as: "subcategoria",
-            attributes: ["idSucCategoria", "nome"],
+            attributes: ["idSubcategoria", "nome"],
             required: !!(idCategoria || idSubcategoria),
             where: whereSubcategoria,
             include: [

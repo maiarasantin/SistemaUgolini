@@ -80,7 +80,7 @@ function validarDados(dados, parcial = false) {
 
     // Nome
     if (!parcial || Object.hasOwn(dados, "nome")) {
-        const nome = removerTags(limparTexto(dados.descricao));
+        const nome = removerTags(limparTexto(dados.nome));
 
         if (!nome) {
             throw criarErro(400, "O nome do produto é obrigatório.");

@@ -4,6 +4,7 @@ import Login from "./paginas/Login";
 import Inicio from "./paginas/Inicio";
 import Clientes from "./paginas/Clientes";
 import Categorias from "./paginas/Categorias"; 
+import Catalogo from "./paginas/Catalogo";
 import Box from "@mui/material/Box";
 import MenuLateral from "./componentes/MenuLateral";
 import BarraSuperior from "./componentes/BarraSuperior";
@@ -136,6 +137,7 @@ export default function App() {
                 {paginaAtual === "catalogo" && <Inicio />}
                 {paginaAtual === "clientes" && <Clientes />}
                 {paginaAtual === "categorias" && <Categorias />}
+                {paginaAtual === "catalogo" && <Catalogo />}
             </Box>
         </Box>
     </Box>
