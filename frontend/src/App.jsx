@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import Login from "./paginas/Login";
-import Inicio from "./paginas/Inicio";
 import Clientes from "./paginas/Clientes";
 import Categorias from "./paginas/Categorias"; 
 import Catalogo from "./paginas/Catalogo";
@@ -171,10 +170,9 @@ export default function App() {
              aoAbrirMenu={() => setMenuAberto(true)}  /> {/*abrir a barra do menu em celulares*/}
 
             <Box component="main" sx={{ p: 3 }}>
-                {paginaAtual === "catalogo" && <Inicio />}
+                {paginaAtual === "catalogo" && <Catalogo />}
                 {paginaAtual === "clientes" && <Clientes />}
                 {paginaAtual === "categorias" && <Categorias />}
-                {paginaAtual === "catalogo" && <Catalogo />}
                 {paginaAtual === "vendedores" && <Vendedores />}
             </Box>
         </Box>
