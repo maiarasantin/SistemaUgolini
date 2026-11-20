@@ -2,10 +2,10 @@ const clientesService = require("./clientes.service");
 const { responderErro } = require("../utils/erros");
 
 
-
+// Lista os clientes. A busca e a ordenação vêm na URL (req.query)
 async function listar (req, res) {
     try {
-       const clientes  = await clientesService.listar(req.query); //As opções de busca e ordenação vêm no endereço (req.query)
+       const clientes  = await clientesService.listar(req.query); 
          return res.status(200).json({clientes});
     } catch (erro) {
         return responderErro(res, erro);
@@ -28,7 +28,7 @@ async function buscarPorId (req, res) {
 async function criar (req, res) {
     try{
         const cliente = await clientesService.criar(req.body);
-        return res.status(201).json({cliente})
+        return res.status(201).json({cliente});
     } catch (erro) {
         return responderErro(res, erro);
     }
@@ -38,7 +38,7 @@ async function criar (req, res) {
 async function atualizar (req, res) {
     try{
         const cliente = await clientesService.atualizar(req.params.id, req.body);
-        return res.status(200).json({cliente})
+        return res.status(200).json({cliente});
     } catch (erro) {
         return responderErro(res, erro);
     }
