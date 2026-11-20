@@ -5,6 +5,7 @@ import Inicio from "./paginas/Inicio";
 import Clientes from "./paginas/Clientes";
 import Categorias from "./paginas/Categorias"; 
 import Catalogo from "./paginas/Catalogo";
+import Vendedores from "./paginas/Vendedores";
 import Box from "@mui/material/Box";
 import MenuLateral from "./componentes/MenuLateral";
 import BarraSuperior from "./componentes/BarraSuperior";
@@ -12,6 +13,7 @@ import { ITENS } from "./componentes/itensMenu";
 
 
 
+// ------------------------ CONFIGURAÇÃO DO AXIOS ------------------------
 
 axios.defaults.baseURL = import.meta.env.VITE_API_URL;
 
@@ -26,6 +28,16 @@ function aplicarToken(token) {
     }
 }
 
+
+
+
+
+
+
+
+
+// ------------------------ COMPONENTE ------------------------
+
 export default function App() {
     
     const [usuario, setUsuario] = useState(null);
@@ -35,41 +47,48 @@ export default function App() {
         
         aplicarToken(token);
        
-        return Boolean(token);
+        return Boolean(token); // Devolve se existe token ou não
     });
 
     const [paginaAtual, setPaginaAtual] = useState("catalogo");
+
+        
+    const [menuAberto, setMenuAberto] = useState(false); // Se o menu lateral está aberto no caso de celular (responsividade)
+    
+
     
 
 
 
 
+
+
+
+
+    // ------------------------ FUNÇÕES ------------------------
+
     function handleLogin() {
        
         aplicarToken(localStorage.getItem("token"));
-        
         setIsLoggedIn(true);
     }
 
 
-
-
-
-    // Chamada ao clicar em "Sair".
+    
     function handleLogout() {
-        
-        localStorage.removeItem("token");  // Apaga o token guardado no navegador.
-        
-        aplicarToken(null);
-        setUsuario(null);   
+        localStorage.removeItem("token");  // Apaga o token guardado no navegador
+        aplicarToken(null); // Tira o token do axios
+        setUsuario(null);    // esquece quem estava logado
         setIsLoggedIn(false);  // Volta pra tela de login.
     }
 
 
 
 
-      // Quando a pessoa está logada, pergunta ao back quem ela é
-    // Roda no login e também ao recarregar a página 
+
+
+    // ------------------------ DESCOBRIR QUEM LOGOU ------------------------
+
     useEffect(() => {
         // Sem login não tem o que buscar
         if (!isLoggedIn) {
@@ -83,14 +102,14 @@ export default function App() {
 
                 // Cada perfil começa em uma página que ele pode ver
                 if (resposta.data.perfil === "admin") {
-                    setPaginaAtual("entradaDeEstoque");
+                    setPaginaAtual("vendedores");
                 } else {
                     setPaginaAtual("catalogo");
                 }
             } catch (error) {
-                localStorage.removeItem("token"); // Token inválido ou expirado: volta para o login
-                aplicarToken(null);
-                setIsLoggedIn(false);
+                localStorage.removeItem("token"); // Apaga o token
+                aplicarToken(null); // Tira o token do axios
+                setIsLoggedIn(false);  
             }
         }
 
@@ -99,22 +118,34 @@ export default function App() {
     
 
     
+
+
+
+
+
+
+
+
+
+
+    // ------------------------ DECISÕES DE TELA ------------------------
+
     if (!isLoggedIn) {
-        return <Login onLogin={handleLogin} />;  // Não está logada? Mostra só o login, e passa handleLogin pra ele avisar quando der certo.
+        return <Login onLogin={handleLogin} />;  // Se não está logada mostra só o login e passa a prop para o Login
     }
 
 
-      // Está logada, mas o back-end ainda não respondeu quem ela é: espera.
+      // Está logada, mas o back-end ainda não respondeu quem ela é então espera.
     if (usuario === null) {
         return <Box sx={{ p: 3 }}>Carregando...</Box>;
     }
 
-    const itemAtual = ITENS.find((item) => item.id === paginaAtual);// .find percorre ITENS e devolve o PRIMEIRO item cujo id é igual à página aberta.
+    const itemAtual = ITENS.find((item) => item.id === paginaAtual);// .find percorre ITENS e devolve o PRIMEIRO item cujo id é igual à página aberta
 
     let tituloPagina = "";
 
     if (itemAtual) {
-        tituloPagina = itemAtual.texto;//isso aqui serve para a barra superior
+        tituloPagina = itemAtual.texto; // Isso aqui serve para a barra superior
     }  
     
 
@@ -127,17 +158,24 @@ export default function App() {
     <Box sx={{ display: "flex" }}>
         <MenuLateral paginaAtual={paginaAtual} 
         aoSelecionar={setPaginaAtual} 
-        perfil={usuario.perfil}/>
+        perfil={usuario.perfil}
+        aberto={menuAberto} // Responsividade do menu
+        aoFechar={() => setMenuAberto(false)}/> {/*fechar a barra do menu*/}
 
-       {/* Lado direito: ocupa o resto da largura. Barra em cima, conteúdo embaixo. */}
-        <Box sx={{ flexGrow: 1 }}>
-            <BarraSuperior aoSair={handleLogout} tituloPagina={tituloPagina}  usuario={usuario} />
+       {/* Lado direito: Barra em cima e o conteúdo embaixo */}
+        <Box sx={{ flexGrow: 1 , minWidth: 0 }}>
+            <BarraSuperior 
+             aoSair={handleLogout}
+             tituloPagina={tituloPagina} 
+             usuario={usuario} 
+             aoAbrirMenu={() => setMenuAberto(true)}  /> {/*abrir a barra do menu em celulares*/}
 
             <Box component="main" sx={{ p: 3 }}>
                 {paginaAtual === "catalogo" && <Inicio />}
                 {paginaAtual === "clientes" && <Clientes />}
                 {paginaAtual === "categorias" && <Categorias />}
                 {paginaAtual === "catalogo" && <Catalogo />}
+                {paginaAtual === "vendedores" && <Vendedores />}
             </Box>
         </Box>
     </Box>

@@ -5,7 +5,7 @@ const { responderErro } = require("../utils/erros");
 
 async function listar (req, res) {
     try {
-       const clientes  = await clientesService.listar(req.query); //As opções de busca e ordenação vêm no endereço (req.query).
+       const clientes  = await clientesService.listar(req.query); //As opções de busca e ordenação vêm no endereço (req.query)
          return res.status(200).json({clientes});
     } catch (erro) {
         return responderErro(res, erro);

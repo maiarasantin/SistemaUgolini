@@ -1,29 +1,23 @@
 const clientesRepository = require("./clientes.repository");
 const { criarErro } = require("../utils/erros");
-
-// Evita que alguém mande um nome de campo qualquer pela URL.
-const CAMPOS_ORDENAVEIS = ["nome", "telefone", "email"];
+const { limparTexto, validarId } = require("../utils/validacoes");
 
 
-function limparTexto(valor){
-    if(!valor){
-        return "";
-    }
-    return String(valor).trim(); //o trim só tira os espaços do inicio e do fim
-}
+const CAMPOS_ORDENAVEIS = ["nome", "telefone", "email"]; // Evitar que alguém mande um nome de campo qualquer pela URL
+
 
 
 // Tira tudo que não é número: "(49) 99876-5432" vira "49998765432".
 function somenteNumeros(valor) {
 
-    const texto = String(valor);// tem q convrter em string antes por conta do replace que só funciona com texto
-    return texto.replace(/\D/g, ""); //qualquer coisa que não seja digito troque por ""
+    const texto = String(valor); // Tem que convrter em string antes por conta do replace que só funciona com texto
+    return texto.replace(/\D/g, ""); // Qualquer coisa que não seja digito troque por ""
 }
 
 
 
-// Valida os dados que vieram do front e monta o objeto pro banco.
-function TratarDados(dados) {
+// Valida os dados que vieram do front e monta o objeto pro banco
+function tratarDados(dados) {
 
     if(!dados){
         dados = {};
@@ -38,8 +32,12 @@ function TratarDados(dados) {
 
     const telefone = somenteNumeros(dados.telefone);
 
-    if (nome === "" || telefone === ""){
-        throw criarErro(400, "Nome e telefone são obrigatórios.");
+     if (nome === ""){
+        throw criarErro(400, "Informe o nome do cliente.");
+    }
+
+    if (telefone === ""){
+        throw criarErro(400, "Informe o telefone do cliente.");
     }
 
     if(telefone.length < 10 || telefone.length > 11){
@@ -56,14 +54,31 @@ function TratarDados(dados) {
         cnpj = documento
     } else if (documento.length > 0){
         throw criarErro(400, "CPF/CNPJ inválido. O CPF tem 11 digitos e o CNPJ tem 14.")
-    } // Se não digitou nada (length 0) não faz nada e o cliente fica sem documento.
+    } // Se não digitou nada, não faz nada e o cliente fica sem documento
+
+
+    // Tipo do cliente: PF se tem CPF, PJ se tem CNPJ, vazio se não informou documento
+    let tipoCliente = null;
+
+    if (cpf) {
+        tipoCliente = "PF";
+    }
+
+    if (cnpj) {
+        tipoCliente = "PJ";
+    }
+
+
+
+
+
 
 
 
      //------------EMAIL--------------------
     let email = limparTexto(dados.email);
 
-    if(email !== "" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ //não aceita se não tiver formato de email correto
+    if(email !== "" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ // Não aceita se não tiver formato de email correto
         throw criarErro(400, "E-mail inválido.")
     }
 
@@ -141,6 +156,7 @@ function TratarDados(dados) {
     nome,
     telefone,
     email,
+    tipoCliente,
     cpf,
     cnpj,
     cep,
@@ -151,11 +167,16 @@ function TratarDados(dados) {
 };
 }
 
+
+
+
+
+
 async function validarDocumentoUnico(dados, idAtual) {
     if(dados.cpf){
         const existe = await clientesRepository.buscarPorCpf(dados.cpf);
-        if(existe && existe.idCliente !== idAtual) {  //se existir um cliente a variavel existe vai receber ele e vai dar errado e se n existir vai dar null e nem entra na condição
-           throw criarErro(409, "Já existe um cliente cadastrado com esse CPF");
+        if(existe && existe.idCliente !== idAtual) {  // Se existir um cliente a variavel existe vai receber ele e vai dar errado e se não existir vai dar null e nem entra na condição
+           throw criarErro(409, "Já existe um cliente cadastrado com esse CPF.");
     }
     
 }
@@ -163,19 +184,16 @@ async function validarDocumentoUnico(dados, idAtual) {
 if(dados.cnpj){
     const existe = await clientesRepository.buscarPorCnpj(dados.cnpj);
     if(existe && existe.idCliente !== idAtual){
-        throw criarErro(409, "Já existe um cliente cadastrado com esse CNPJ");
+        throw criarErro(409, "Já existe um cliente cadastrado com esse CNPJ.");
     }
 }
 }
 
-//em todos os casos em que for necessário o id validar pra ver se ele é um numero e maior que zero e se o cliente existe
+
 async function validacaoIDeClienteExistente(id) {
 
-    const numero = Number(id);
-
-    if(!Number.isInteger(numero) || numero <= 0){
-        throw criarErro(400, "Identificador de cliente inválido.");
-    }
+    // Confere se o id é um número inteiro positivo e se não for, dá erro 
+    const numero = validarId(id, "Identificador de cliente inválido.");
 
     const cliente = await clientesRepository.buscarPorId(numero);
 
@@ -184,7 +202,6 @@ async function validacaoIDeClienteExistente(id) {
     }
 
     return cliente;
-    
 }
 
 
@@ -238,16 +255,16 @@ async function listar(consulta) {
 
 
 async function criar(dados) {
-  const novo = TratarDados(dados); //valida os dados novos
-  await validarDocumentoUnico(novo, null); //garante que o cpf/cnpj não seja duplicado
+  const novo = tratarDados(dados); // Valida os dados novos
+  await validarDocumentoUnico(novo, null); //Garante que o cpf/cnpj não seja duplicado
   return clientesRepository.criar(novo);
 
    
 } 
 async function atualizar(id, dados) {
-    const cliente = await validacaoIDeClienteExistente(id); //confere se o id ta certo e se o cliente existe
-    const novo = TratarDados(dados); //valida os novos dados
-    await validarDocumentoUnico(novo, cliente.idCliente);  //garante que o cpf/cnpj não seja duplicado
+    const cliente = await validacaoIDeClienteExistente(id); //Confere se o id ta certo e se o cliente existe
+    const novo = tratarDados(dados); //Valida os novos dados
+    await validarDocumentoUnico(novo, cliente.idCliente);  //Garante que o cpf/cnpj não seja duplicado
     return clientesRepository.atualizar(cliente, novo);
 } 
 
@@ -261,7 +278,7 @@ async function excluir(id) {
             throw criarErro(409, "Não é possível excluir esse cliente, ele possui pedidos cadastrados.");
         }
 
-        throw erro; //para erros desconhecidos
+        throw erro; // Para erros desconhecidos
     }
     
 } 

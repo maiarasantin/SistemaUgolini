@@ -12,8 +12,11 @@ const { configureJwtStrategy ,requirePerfil} = require("./Auth/auth.config");
 const authRouter = require("./Auth/auth.router");
 
 const categoriasRoutes = require("./Categorias/categorias.router");
-const subcategoriasRoutes = require("./Subcategorias/subcategorias.router");
+
+const subcategoriaRoutes = require("./Subcategorias/subcategorias.router");
+const funcionariosRouter = require("./Funcionarios/funcionarios.router");
 const produtosRoutes = require("./Produtos/produtos.router");
+
 
 
 
@@ -35,8 +38,11 @@ app.use(passport.initialize());
 app.use("/auth", authRouter);
 app.use("/clientes", clientesRouter);
 app.use("/categorias", categoriasRoutes);
-app.use("/subcategorias", subcategoriasRoutes);
+
+app.use("/subcategorias", subcategoriaRoutes);
+app.use("/funcionarios", funcionariosRouter);
 app.use("/produtos", produtosRoutes);
+
 
 
 app.listen(PORT, () => {

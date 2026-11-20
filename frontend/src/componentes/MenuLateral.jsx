@@ -5,26 +5,23 @@ import ListItemButton from "@mui/material/ListItemButton";
 import ListItemText from "@mui/material/ListItemText";
 import Typography from "@mui/material/Typography";
 import ListItemIcon from "@mui/material/ListItemIcon";
-
-
-
-
-
-
-
-
+import Drawer from "@mui/material/Drawer"; // Drawer é a gaveta que desliza por cima da tela usada pra responsividade
 
 
 
 
 // ---------- COMPONENTE ----------
-// Recebe duas props do App:
+// Recebe cinco props do App:
 //   paginaAtual = qual página está aberta (pra destacar o item certo)
 //   aoSelecionar  = função que o menu chama quando alguém clica num item
-export default function MenuLateral({ paginaAtual, aoSelecionar, perfil }) {
+// aberto e aoFechar vêm do App e controlam a gaveta de responsividade
+//  perfil = perfil de quem está logado "admin" ou "vendedor", usado para mostrar só o que é permitido
+export default function MenuLateral({ paginaAtual, aoSelecionar, perfil , aberto, aoFechar }) {
 
     const itensVisiveis = ITENS.filter((item) => item.perfis.includes(perfil)); // Só os itens que o perfil pode ver
-    return (
+
+    // O conteúdo do menu virou uma variável para ser usado dentro da gaveta de responsividade em caso de celular e no menu fixo para tela grande
+    const conteudo = (
         <Box
             component="nav"
             sx={{
@@ -48,7 +45,7 @@ export default function MenuLateral({ paginaAtual, aoSelecionar, perfil }) {
                     <ListItemButton //uma linha no menu, clicável
                         key={item.id}
                         selected={paginaAtual === item.id}
-                        onClick={() => aoSelecionar(item.id)}
+                        onClick={() => { aoSelecionar(item.id); aoFechar(); }} //Troca de pagina e fehca a gaveta de responsividade em celulares
                         sx={{
                             borderRadius: 2,
                             mb: 0.5,
@@ -67,5 +64,24 @@ export default function MenuLateral({ paginaAtual, aoSelecionar, perfil }) {
                 ))}
             </List>
         </Box>
+    );
+
+
+     return (
+        <>
+            {/* No celular o menu abre por cima da tela, escondido até clicar nos 3 tracinhos */}
+            <Drawer
+                open={aberto}
+                onClose={aoFechar}
+                sx={{ display: { xs: "block", md: "none" } }}
+            >
+                {conteudo}
+            </Drawer>
+
+            {/* Em telas grandes o menu fixo de sempre */}
+            <Box sx={{ display: { xs: "none", md: "block" } }}>
+                {conteudo}
+            </Box>
+        </>
     );
 }

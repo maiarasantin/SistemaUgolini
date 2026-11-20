@@ -1,6 +1,9 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import FormularioCliente from "./FormularioCliente";
+import FormularioCliente from "../componentes/FormularioCliente";
+import { formatarTelefone, formatarDocumento } from "../utils/formatacao";
+import { pegarMensagemErro } from "../utils/mensagemErro";
+import DialogoExcluir from "../componentes/DialogoExcluir";
 import Alert from "@mui/material/Alert";
 
 import Box from "@mui/material/Box";
@@ -17,6 +20,7 @@ import AddIcon from "@mui/icons-material/Add";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutlineOutlined";
 import MenuItem from "@mui/material/MenuItem";
+import Snackbar from "@mui/material/Snackbar";
 
 const VERDE = "#2f5a45";
 
@@ -31,35 +35,39 @@ function Clientes() {
   const [recarregar, setRecarregar] = useState(0); // Quando o número muda, o useEffect busca a lista de novo.
   const [clienteEditando, setClienteEditando] = useState(null); // null = cadastro novo; senão, o cliente que está sendo editado
 
+
+ 
+const [clienteExcluindo, setClienteExcluindo] = useState(null);  // Qual cliente está na caixinha de confirmação se estiver null ela não está aberta
+const [excluindo, setExcluindo] = useState(false);
+const [mensagemSucesso, setMensagemSucesso] = useState("");  //Mensagem de sucesso depois de ações feitas
+
   
 
   // Busca os clientes na API e coloca os resultados na tela
     useEffect(() => {
       async function carregarClientes() {
         try {
-          // params monta a URL sozinho: /clientes?busca=texto
           const resposta = await axios.get("/clientes", { params: { busca, ordenarPor  } });
-          setClientes(resposta.data.clientes); //resposta.data é o conteúdo que a API respondeu o set aq guarda a lista e faz o react redesenhar a tabela
+          setClientes(resposta.data.clientes); //resposta.data é o conteúdo que a API respondeu o set guarda a lista e faz o react redesenhar a tabela
           setErro(""); // limpa um erro antigo, se a busca anterior tinha falhado
         } catch (error) {
-          setErro("Não foi possível carregar os clientes. Tente Novamente.");
+          setErro(pegarMensagemErro(error));
         } finally {
           setCarregando(false); //roda sempre mesmo que deu certo ou errado
         }
       }
 
-      // Espera 400 ms depois da última tecla antes de buscar.
+      // Espera 400 ms depois da última tecla antes de buscar
       const espera = setTimeout(() => {
         carregarClientes();
       }, 400);
 
-      // Se a pessoa digitar de novo antes dos 400 ms, cancela a espera anterior.
+      // Se a pessoa digitar de novo antes dos 400 ms ele cancela a espera anterior
       return () => clearTimeout(espera);
     }, [busca, ordenarPor, recarregar ]); // roda de novo toda vez que a busca mudar
 
    
 
-    // a mensagem que aparece em cima da tabela
   let aviso = null;
 
   if (erro) {
@@ -87,33 +95,26 @@ function Clientes() {
 
 
 
-//BOTÃO EXCLUIR
-async function excluirCliente(cliente) {
-  // confirm abre uma caixinha com OK e Cancelar.
-  // Devolve true se a pessoa clicou em OK, e false se cancelou.
-  const confirmou = window.confirm("Deseja excluir " + cliente.nome + "?");
+  
+  // BOTÃO EXCLUIR: só abre a caixinha de confirmação 
+function pedirExclusao(cliente) {
+  setClienteExcluindo(cliente);
+}
 
-  // Se cancelou, para por aqui e não faz nada.
-  if (confirmou === false) {
-    return;
-  }
+// Se for confirmada a exclusão
+async function confirmarExclusao() {
+  setExcluindo(true);
 
   try {
-    
-    await axios.delete("/clientes/" + cliente.idCliente);
-
-    // Se deu certo monta uma lista nova SEM esse cliente
-    setClientes(clientes.filter((c) => c.idCliente !== cliente.idCliente)); // filter mantém só quem tem id diferente do que foi excluído.
+    await axios.delete("/clientes/" + clienteExcluindo.idCliente);
+    setRecarregar(recarregar + 1);
+    setErro("");
+    setMensagemSucesso("Cliente excluído com sucesso.");            
   } catch (error) {
-    
-    let mensagem = "Não foi possível excluir o cliente. Tente novamente.";
-
-    // Se o back mandou uma mensagem ela será usada
-    if (error.response && error.response.data.erro) {
-      mensagem = error.response.data.erro;
-    }
-   
-    setErro(mensagem);
+    setErro(pegarMensagemErro(error));
+  } finally {
+    setClienteExcluindo(null);
+    setExcluindo(false);
   }
 }
 
@@ -121,8 +122,13 @@ async function excluirCliente(cliente) {
 
 // Chamada pelo formulário quando o cliente foi salvo
 function aoSalvarCliente() {
-  setRecarregar(recarregar + 1); //Busca a lista de novo
-  setTela("lista");              // Volta pra lista
+  if (clienteEditando) { // Se era uma edição aparece mensagem de atualizado caso contrário era um cadastro
+    setMensagemSucesso("Cliente atualizado com sucesso.");
+  } else {
+    setMensagemSucesso("Cliente cadastrado com sucesso.");
+  }
+  setRecarregar(recarregar + 1); // Busca a lista de novo
+  setTela("lista"); // Volta pra lista
 }
 
 
@@ -133,11 +139,6 @@ function editarCliente(cliente){
 }
 
 
-
-
-
-
-// Se a tela é o formulário, mostra só ele e para por aqui
 if (tela === "formulario") {
   return ( 
     <FormularioCliente
@@ -156,21 +157,16 @@ if (tela === "formulario") {
 
 
 
-
-
-
-
-
-
-
   return (
     <Box>
       <Box
         sx={{
-          display: "flex", // coloca os filhos lado a lado
-          justifyContent: "space-between", // um encostado em cada ponta
-          alignItems: "flex-start", // alinha os dois pelo topo
-          mb: 3, // margem embaixo (3 x 8px = 24px)
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "flex-start",
+          flexWrap: "wrap", // se não couber faz o botão desce para a linha de baixo
+          gap: 2, 
+          mb: 3,
         }}
       >
         <Box>
@@ -188,11 +184,11 @@ if (tela === "formulario") {
         </Box>
 
         <Button
-          variant="contained" // botão preenchido
-          startIcon={<AddIcon />} // ícone de +
-          sx={{ bgcolor: VERDE }} // cor de fundo verde
+          variant="contained" 
+          startIcon={<AddIcon />} 
+          sx={{ bgcolor: VERDE }} 
           onClick={() => {
-             setClienteEditando(null);  //Pode ter dois valores o null que é ninguem está sendo editado então precisa vim em branco pois é cadastro novo
+             setClienteEditando(null);  //Pode ter dois valores o null que é quando ninguem está sendo editado, então precisa vim em branco porque é cadastro novo
                setTela("formulario");   //Ou objeto cliente que seria a edição desse cliente
           }}
         >
@@ -204,18 +200,18 @@ if (tela === "formulario") {
         sx={{
           bgcolor: "white",
           border: "1px solid #ddd",
-          borderRadius: 2, // cantos arredondados
-          p: 3, // espaço interno (24px)
+          borderRadius: 2, 
+          p: { xs: 2, sm: 3 }, //  16px no celular, 24px em telas maiores
         }}
       >
                 
-            <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
+            <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, gap: 2, mb: 2 }}>
             <TextField
                 size="small"
                 placeholder="Buscar por nome, telefone ou CPF/CNPJ"
                 value={busca}
                 onChange={(e) => setBusca(e.target.value)}
-                sx={{ width: 380 }}
+                sx={{ flex: { xs: "none", sm: 1 } }}
             />
 
             {/* select faz o TextField virar uma lista de opções */}
@@ -225,7 +221,7 @@ if (tela === "formulario") {
                 label="Ordenar por"
                 value={ordenarPor}
                 onChange={(e) => setOrdenarPor(e.target.value)}
-                sx={{ width: 180 }}
+                sx={{ width: { xs: "100%", sm: 180 } }}
             >
                 <MenuItem value="nome">Nome</MenuItem>
                 <MenuItem value="telefone">Telefone</MenuItem>
@@ -235,13 +231,12 @@ if (tela === "formulario") {
 
 
 
-        {/* Mostra a faixa de erro ou o "Carregando...". Se não tem nada
-                    pra avisar nada aparece. */}
+        {/* Mostra a faixa de erro ou o "Carregando..." */}
         {aviso}
 
         {/* -------- TABELA -------- */}
         <TableContainer>
-          <Table>
+          <Table  sx={{ minWidth: 700 }}>
             {/* Cabeçalho: uma linha verde com os nomes das colunas */}
             <TableHead>
               <TableRow sx={{ bgcolor: VERDE }}>
@@ -264,8 +259,9 @@ if (tela === "formulario") {
             </TableHead>
 
             <TableBody>
+
               {/* Mostra a linha "Nenhum cliente encontrado." quando a lista está
-               vazia. Nos outros casos linhaVazia é null e não aparece nada. */}
+               vazia. Nos outros casos linhaVazia é null e não aparece nada*/}
               {linhaVazia}
 
               {clientes.map((cliente) => (
@@ -273,9 +269,9 @@ if (tela === "formulario") {
                   {/* Nome em negrito */}
                   <TableCell sx={{ fontWeight: 600 }}>{cliente.nome}</TableCell>
 
-                  <TableCell>{cliente.telefone}</TableCell>
+                  <TableCell>{formatarTelefone(cliente.telefone)}</TableCell>
 
-                  <TableCell>{cliente.cpf || cliente.cnpj || "—"}</TableCell>
+                  <TableCell>{formatarDocumento(cliente.cpf || cliente.cnpj || "") || "—"}</TableCell>
 
                   <TableCell>{cliente.email || "—"}</TableCell>
 
@@ -294,7 +290,7 @@ if (tela === "formulario") {
                       size="small"
                       color="error" // vermelho padrão do MUI
                       startIcon={<DeleteOutlineIcon />}
-                    onClick={() => excluirCliente(cliente)}
+                    onClick={() => pedirExclusao(cliente)}
                     >
                       Excluir
                     </Button>
@@ -313,6 +309,28 @@ if (tela === "formulario") {
           {clientes.length} clientes encontrados.
         </Typography>
       </Box>
+      <DialogoExcluir
+     aberto={clienteExcluindo !== null}
+     nomeItem={clienteExcluindo ? clienteExcluindo.nome : ""}
+     excluindo={excluindo}
+     aoCancelar={() => setClienteExcluindo(null)}
+     aoConfirmar={confirmarExclusao}
+/>
+       {/* Aviso verde que some sozinho depois de 4 segundos */}
+      <Snackbar
+        open={mensagemSucesso !== ""}
+        autoHideDuration={4000}
+        onClose={() => setMensagemSucesso("")} // Limpa o texto e o aviso some
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}   // Onde o aviso aparece
+      >
+        <Alert
+          severity="success"
+          variant="filled"
+          onClose={() => setMensagemSucesso("")} // O botão X que fecha o aviso antes dos 4 segundos
+        >
+          {mensagemSucesso}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }
