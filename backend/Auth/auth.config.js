@@ -5,16 +5,12 @@ const authRepository = require("./auth.repository");
 
 
 
-
-// =====================================================================
-// configureJwtStrategy
-// Ensina o Passport a ler a "pulseira" (token) e descobrir de quem é.
-// Precisa ser CHAMADA uma vez, no index.js, quando o servidor liga.
-// =====================================================================
+// Configura o Passport para ler o token JWT do cabeçalho Authorization,
+// conferir a assinatura e a validade, e buscar no banco o funcionário dono do token.
+// Deve ser chamada uma única vez no index.js, quando o servidor liga.
 const configureJwtStrategy = () => {
-     // Registra a estratégia no Passport
+      // Registra no Passport a regra "como autenticar com JWT"
     passport.use(
-        // Cria a estratégia JWT, que recebe 2 coisas: as opções e a função de verificação.
         new JwtStrategy(
             {
                 jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -23,14 +19,17 @@ const configureJwtStrategy = () => {
             },
             async (payload, done) => {
                 try {
-                    const funcionario = await authRepository.buscarPorId(payload.id);
+                    // Busca no banco o funcionário dono desse id
+                    const funcionario = await authRepository.buscarPorId(payload.id);  
 
                     if (funcionario && funcionario.status) {
                         done(null, funcionario);
                     } else {
+                        // Não existe ou está inativo: recusa 
                         done(null, false);
                     }
                 } catch (error) {
+                     // Deu problema no banco: avisa que foi erro
                     done(error, false);
                 }
             },
@@ -41,6 +40,7 @@ const configureJwtStrategy = () => {
 // Middleware para autenticação JWT
 const requireJWTAuth = (req, res, next) => {
     passport.authenticate("jwt", { session: false }, (erro, funcionario, info) => {
+        //Se deu erro técnico manda para o tratador de erros
         if (erro) {
             return next(erro);
         }
@@ -52,8 +52,9 @@ const requireJWTAuth = (req, res, next) => {
                     : "Autenticação necessária.",
             });
         }
+        //Se deu certo guarda o funcionário em req.user para as próximas etapas usarem
         req.user = funcionario;
-        next();
+        next(); //Libera a passagem para a próxima etapa
     })(req, res, next);
 };
 
@@ -61,23 +62,27 @@ const requireJWTAuth = (req, res, next) => {
 // Deve ser usado APÓS o requireJWTAuth
 const verificarPerfilMiddleware = (...perfisPermitidos) => {
     return (req, res, next) => {
+        //Se não tem req.user é porque o requireJWTAuth não rodou antes, então da erro
         if (!req.user) {
             return res.status(401).json({ erro: "Usuário não autenticado." });
         }
 
+        //Descobre o perfil de quem está pedindo olhando no banco o campo eAdmin
         const perfilAtual = req.user.eAdmin ? "admin" : "vendedor";
 
+        //Caso o perfil dele não esteja na lista de permitidos, da erro também
         if (!perfisPermitidos.includes(perfilAtual)) {
             return res.status(403).json({
                 erro: "Acesso negado. Você não tem permissão para realizar esta ação.",
             });
         }
 
-        next();
+        next(); //Perfil permitido segue
     };
 };
 
-// Middleware para verificar JWT e perfil
+
+// Middleware para verificar token e depois o perfil
 const requirePerfil = (...perfisPermitidos) => {
     return [requireJWTAuth, verificarPerfilMiddleware(...perfisPermitidos)];
 };

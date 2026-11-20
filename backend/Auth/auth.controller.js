@@ -1,16 +1,9 @@
 const authService = require("./auth.service");
+const { responderErro } = require("../utils/erros");
 
 
-function responderErro( res, erro){
-    if(erro.status){
-        return res.status(erro.status).json({erro: erro.message});
-    }
 
-    
-    console.error(erro); //mensagem no terminal para saber qual foi o erro
-    return res.status(500).json({erro: "Erro interno do servidor."});
-}
-
+// Confere e-mail e senha e devolve o token
 async function login (req, res) {
     try{
          const { email, senha } = req.body;
@@ -26,29 +19,15 @@ async function login (req, res) {
         }
 }
 
-async function registrar(req, res) {
-    try {
-        const funcionario = await authService.registrarFuncionario(req.body);
-        return res.status(201).json({
-            mensagem: "Funcionário cadastrado com sucesso.",
-            funcionario: funcionario,
-        });
-    } catch (erro) {
-        return responderErro(res, erro);
-    }
-}
 
 
 
-// =====================================================================
-// perfil
-// Responde "quem sou eu?" para quem está logado (GET /auth/perfil).
-// Só roda depois que o requireJWTAuth aprovou o token.
-// =====================================================================
+
+// Devolve os dados de quem está logado para o front saber quem entrou e o que mostrar
 async function perfil(req, res) {
-    // Tira da ficha do funcionário (req.user) só os campos que vamos mostrar.
-    // O req.user foi preenchido pelo requireJWTAuth.
-    // Repara que a senha NÃO é pega, então nunca sai na resposta.
+    
+    // O req.user foi preenchido pelo requireJWTAuth
+    // A senha não é pega, por isso nunca sai na resposta
     const { id, nome, email, eAdmin } = req.user;
     return res.status(200).json({
         id,
@@ -58,4 +37,4 @@ async function perfil(req, res) {
     });
 }
 
-module.exports = {login, registrar, perfil };
+module.exports = {login, perfil };

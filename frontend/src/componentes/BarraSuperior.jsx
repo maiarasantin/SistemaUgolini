@@ -26,7 +26,7 @@ export default function BarraSuperior ({aoSair, tituloPagina, usuario, aoAbrirMe
                 alignItems: "center",
                 px: 3,                                   // padding dos lados: 24px
                 py: 1.5,                                 // padding de cima e de baixo: 12px
-                backgroundColor: "#cdf0d3",
+                backgroundColor: "#e8efeb",
                 borderBottom: "1px solid #e3e0d8",       // linha fininha embaixo
             }}
         >

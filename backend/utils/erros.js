@@ -21,8 +21,6 @@ function responderErro(res, erro) {
         return res.status(erro.status).json({ erro: erro.message });
     }
 
-   
-
     //Se não tem status é um erro inesperado então só mostra os detalhes no terminal
     console.error(erro);
 
