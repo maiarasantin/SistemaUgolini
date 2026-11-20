@@ -18,21 +18,21 @@ const tiposFoto = {
 };
 
 // Remove possíveis tags HTML de um texto
-function removerTags(texto) {
+function removerTags(texto){
     return texto.replace(/<[^>]*>/g, "").trim();
 }
 
 // Valida números inteiros
-function validarNumeroInteiro(valor, nome, minimo = 0) {
+function validarNumeroInteiro(valor, nome, minimo = 0){
     const numero = Number(valor);
 
-    if (
+    if(
         String(valor).trim() === "" ||
         valor === null ||
         valor === undefined ||
         !Number.isInteger(numero) ||
         numero < minimo
-    ) {
+    ){
         throw criarErro(
             400,
             `${nome} deve ser um número inteiro maior ou igual a ${minimo}.`
@@ -43,14 +43,14 @@ function validarNumeroInteiro(valor, nome, minimo = 0) {
 }
 
 // Valida o preço do produto
-function validarPreco(valor) {
-    if (valor === "" || valor === null || valor === undefined) {
+function validarPreco(valor){
+    if(valor === "" || valor === null || valor === undefined){
         throw criarErro(400, "O preço é obrigatório.");
     }
 
     const texto = String(valor).trim().replace(",", ".");
 
-    if (!/^\d+(\.\d{1,2})?$/.test(texto)) {
+    if(!/^\d+(\.\d{1,2})?$/.test(texto)){
         throw criarErro(
             400,
             "O preço deve ser um número com até duas casas decimais."
@@ -59,11 +59,11 @@ function validarPreco(valor) {
 
     const preco = Number(texto);
 
-    if (
+    if(
         !Number.isFinite(preco) ||
         preco < 0 ||
         preco > 99999999.99
-    ) {
+    ){
         throw criarErro(400, "Informe um preço válido.");
     }
 
@@ -71,39 +71,32 @@ function validarPreco(valor) {
 }
 
 // Valida e organiza os dados recebidos do produto
-function validarDados(dados, parcial = false) {
-    if (!dados || typeof dados !== "object" || Array.isArray(dados)) {
+function validarDados(dados, parcial = false){
+    if(!dados || typeof dados !== "object" || Array.isArray(dados)){
         throw criarErro(400, "Dados do produto inválidos.");
     }
 
     const novoProduto = {};
 
     // Nome
-    if (!parcial || Object.hasOwn(dados, "nome")) {
+    if(!parcial || Object.hasOwn(dados, "nome")){
         const nome = removerTags(limparTexto(dados.nome));
 
-        if (!nome) {
-            throw criarErro(400, "O nome do produto é obrigatório.");
-        }
-
-        if (nome.length > 100) {
-            throw criarErro(400, "O nome deve ter no máximo 100 caracteres.");
-        }
+        if(!nome) throw criarErro(400, "O nome do produto é obrigatório.");
+        if(nome.length > 100) throw criarErro(400, "O nome deve ter no máximo 100 caracteres.");
 
         novoProduto.nome = nome;
     }
 
     // Descrição
-    if (Object.hasOwn(dados, "descricao")) {
-        if (dados.descricao !== null && typeof dados.descricao !== "string") {
+    if(Object.hasOwn(dados, "descricao")){
+        if(dados.descricao !== null && typeof dados.descricao !== "string"){
             throw criarErro(400, "A descrição deve ser um texto.");
         }
 
-        const descricao = dados.descricao === null
-            ? ""
-            : removerTags(dados.descricao);
+        const descricao = dados.descricao === null ? "" : removerTags(dados.descricao);
 
-        if (descricao.length > 1000) {
+        if(descricao.length > 1000){
             throw criarErro(400, "A descrição deve ter no máximo 1000 caracteres.");
         }
 
@@ -111,84 +104,75 @@ function validarDados(dados, parcial = false) {
     }
 
     // Preço
-    if (!parcial || Object.hasOwn(dados, "preco")) {
+    if(!parcial || Object.hasOwn(dados, "preco")){
         novoProduto.preco = validarPreco(dados.preco);
     }
 
     // Subcategoria
-    if (!parcial || Object.hasOwn(dados, "idSubcategoria")) {
+    if(!parcial || Object.hasOwn(dados, "idSubcategoria")){
         novoProduto.idSubcategoria = validarNumeroInteiro(
-            dados.idSubcategoria,
-            "A subcategoria",
-            1
+            dados.idSubcategoria, "A subcategoria", 1
         );
     }
 
     // Unidade de medida
-    if (Object.hasOwn(dados, "unidadeMedida")) {
+    if(Object.hasOwn(dados, "unidadeMedida")){
         const unidade = limparTexto(dados.unidadeMedida);
 
-        if (unidade.length > 50) {
+        if(unidade.length > 50){
             throw criarErro(
-                400,
-                "A unidade de medida deve ter no máximo 50 caracteres."
+                400, "A unidade de medida deve ter no máximo 50 caracteres." 
             );
         }
-
         novoProduto.unidadeMedida = unidade || "un";
-    } else if (!parcial) {
+
+    } else if(!parcial){
         novoProduto.unidadeMedida = "un";
     }
 
     // Estoque mínimo
-    if (Object.hasOwn(dados, "estoqueMinimo")) {
+    if(Object.hasOwn(dados, "estoqueMinimo")){
         novoProduto.estoqueMinimo = validarNumeroInteiro(
-            dados.estoqueMinimo,
-            "O estoque mínimo"
+            dados.estoqueMinimo, "O estoque mínimo"
         );
-    } else if (!parcial) {
+
+    } else if(!parcial){
         novoProduto.estoqueMinimo = 0;
     }
-
-    // Não recebemos pelo body:
-    // idProduto, quantidadeEstoque e foto.
 
     return novoProduto;
 }
 
-// Verifica se já existe um produto com o mesmo nome
-async function verificarNome(nome, idAtual = null) {
+async function verificarNome(nome, idAtual = null){
     const produtoExistente = await produtosRepository.buscarPorNome(
-        escaparLike(nome),
-        idAtual
+        escaparLike(nome), idAtual
     );
 
-    if (produtoExistente) {
+    if(produtoExistente){
         throw criarErro(409, "Já existe um produto com esse nome.");
     }
 }
 
 // Verifica se a subcategoria existe
-async function verificarSubcategoria(idSubcategoria) {
+async function verificarSubcategoria(idSubcategoria){
     const subcategoria = await produtosRepository.buscarSubcategoriaPorId(
         idSubcategoria
     );
 
-    if (!subcategoria) {
+    if(!subcategoria){
         throw criarErro(400, "A subcategoria informada não existe.");
     }
 }
 
 // Busca um produto e verifica se ele existe
-async function verificarProduto(id) {
+async function verificarProduto(id){
     const idProduto = validarId(
-        id,
-        "Identificador de produto inválido."
+        id, "Identificador de produto inválido."
     );
 
     const produto = await produtosRepository.buscarPorId(idProduto);
 
-    if (!produto) {
+    if(!produto){
         throw criarErro(404, "Produto não encontrado.");
     }
 
@@ -196,15 +180,15 @@ async function verificarProduto(id) {
 }
 
 // Verifica se a imagem enviada é válida
-function validarFoto(arquivo) {
-    if (!arquivo) {
+function validarFoto(arquivo){
+    if(!arquivo){
         throw criarErro(400, "Nenhuma imagem foi enviada.");
     }
 
     const extensao = path.extname(arquivo.originalname || "").toLowerCase();
     const tipo = tiposFoto[extensao];
 
-    if (!tipo || arquivo.mimetype !== tipo) {
+    if(!tipo || arquivo.mimetype !== tipo){
         throw criarErro(400, "Envie uma imagem JPG, JPEG, PNG ou WebP.");
     }
 
@@ -253,7 +237,6 @@ async function salvarFoto(produto, arquivo) {
     let novaFoto = null;
 
     try {
-        // Envia a imagem para o Supabase
         novaFoto = await enviarArquivo(
             nomeArquivo,
             arquivo.buffer,
@@ -265,36 +248,34 @@ async function salvarFoto(produto, arquivo) {
             foto: novaFoto
         });
 
-    } catch (erro) {
-        // Se ocorrer erro, tenta remover a imagem enviada
-        if (novaFoto) {
+    } catch(erro){
+
+        if(novaFoto){
             const caminhoNovo = extrairCaminho(novaFoto);
 
-            if (caminhoNovo) {
+            if(caminhoNovo){
                 try {
                     await removerArquivo(caminhoNovo);
-                } catch (erroRemocao) {
+                } catch(erroRemocao){
                     console.log("Erro ao remover nova imagem:", erroRemocao.message);
                 }
             }
         }
 
-        if (erro.status) {
-            throw erro;
-        }
+        if(erro.status) throw erro;
 
         console.log("Erro ao salvar foto:", erro.message);
         throw criarErro(500, "Não foi possível salvar a imagem.");
     }
 
     // Depois de salvar a nova foto, remove a antiga
-    if (produto.foto) {
+    if(produto.foto){
         const caminhoAntigo = extrairCaminho(produto.foto);
 
-        if (caminhoAntigo) {
+        if(caminhoAntigo){
             try {
                 await removerArquivo(caminhoAntigo);
-            } catch (erro) {
+            } catch(erro){
                 console.log("Não foi possível remover a foto antiga:", erro.message);
             }
         }
@@ -304,57 +285,54 @@ async function salvarFoto(produto, arquivo) {
 }
 
 // Remove a foto de um produto
-async function removerFoto(produto) {
-    if (!produto.foto) {
-        return;
-    }
+async function removerFoto(produto){
+
+    if(!produto.foto) return;
 
     const caminho = extrairCaminho(produto.foto);
 
-    // Primeiro remove o endereço da foto do banco
     await produtosRepository.atualizar(produto.idProduto, {
         foto: null
     });
 
-    // Depois tenta apagar o arquivo do Supabase
-    if (caminho) {
+    if(caminho){
         try {
             await removerArquivo(caminho);
-        } catch (erro) {
+        } catch(erro){
             console.log("Não foi possível remover a foto:", erro.message);
         }
     }
 }
 
 // Lista os produtos com os filtros informados
-async function listar(consulta = {}) {
+async function listar(consulta = {}){
     const busca = limparTexto(consulta.busca);
 
     let idCategoria;
     let idSubcategoria;
 
-    if (consulta.idCategoria) {
+    if(consulta.idCategoria){
         idCategoria = validarId(
-            consulta.idCategoria,
-            "Identificador de categoria inválido."
+            consulta.idCategoria, "Identificador de categoria inválido."
         );
     }
 
-    if (consulta.idSubcategoria) {
+    if(consulta.idSubcategoria){
         idSubcategoria = validarId(
-            consulta.idSubcategoria,
-            "Identificador de subcategoria inválido."
+            consulta.idSubcategoria, "Identificador de subcategoria inválido."
         );
     }
 
     // Filtro de estoque
     let estoque;
 
-    if (consulta.estoque === "semEstoque") {
+    if(consulta.estoque === "semEstoque"){
         estoque = "semEstoque";
-    } else if (consulta.estoque === "comEstoque") {
+
+    } else if(consulta.estoque === "comEstoque"){
         estoque = "comEstoque";
-    } else if (consulta.estoque) {
+
+    } else if(consulta.estoque){
         throw criarErro(400, "Filtro de estoque inválido.");
     }
 
@@ -374,7 +352,6 @@ async function listar(consulta = {}) {
     direcao
     });
 
-    // Converte cada produto para objeto simples e o preço de texto para número
     return produtos.map((produto) => {
         const item = produto.toJSON();
         item.preco = Number(item.preco);
@@ -382,8 +359,8 @@ async function listar(consulta = {}) {
     });
 }
 
-// Busca um produto pelo ID, incluindo categoria e composição
-async function buscarPorId(id) {
+
+async function buscarPorId(id){
     const produto = await verificarProduto(id);
 
     const completo = await produtosRepository.buscarProdutoCompleto(
@@ -392,13 +369,9 @@ async function buscarPorId(id) {
 
     const resultado = completo.toJSON();
 
-    // Converte o preço para número
     resultado.preco = Number(resultado.preco);
-
-    // Verifica se o produto possui composição
     resultado.possuiComposicao = resultado.composicoes.length > 0;
 
-    // Organiza os componentes
     resultado.componentes = resultado.composicoes.map((item) => ({
         idProduto: item.idProdutoComponente,
         nome: item.produtoComponente?.nome,
@@ -411,11 +384,11 @@ async function buscarPorId(id) {
     return resultado;
 }
 
-// Cadastra um novo produto
-async function criar(dados, arquivo = null) {
+
+async function criar(dados, arquivo = null){
     const novoProduto = validarDados(dados);
 
-    if (arquivo) validarFoto(arquivo);
+    if(arquivo) validarFoto(arquivo);
 
     await verificarNome(novoProduto.nome);
     await verificarSubcategoria(novoProduto.idSubcategoria);
@@ -427,15 +400,12 @@ async function criar(dados, arquivo = null) {
             foto: null
         });
 
-        // Salva a foto, caso tenha sido enviada
-        if (arquivo) {
-            await salvarFoto(produto, arquivo);
-        }
+        if(arquivo) await salvarFoto(produto, arquivo);
 
         return await buscarPorId(produto.idProduto);
 
-    } catch (erro) {
-        if (erro.name === "SequelizeUniqueConstraintError") {
+    } catch(erro){
+        if(erro.name === "SequelizeUniqueConstraintError"){
             throw criarErro(409, "Já existe um produto com esse nome.");
         }
 
@@ -443,45 +413,43 @@ async function criar(dados, arquivo = null) {
     }
 }
 
-// Atualiza os dados de um produto
-async function atualizar(id, dados, arquivo = null) {
-    const produto = await verificarProduto(id);
 
+async function atualizar(id, dados, arquivo = null){
+    const produto = await verificarProduto(id);
     const novosDados = validarDados(dados, true);
 
-    if (novosDados.nome) {
+    if(novosDados.nome){
         await verificarNome(novosDados.nome, produto.idProduto);
     }
 
-    if (novosDados.idSubcategoria) {
+    if(novosDados.idSubcategoria){
         await verificarSubcategoria(novosDados.idSubcategoria);
     }
 
-    if (arquivo) validarFoto(arquivo);
+    if(arquivo) validarFoto(arquivo);
 
     try {
-        // Atualiza os dados enviados
-        if (Object.keys(novosDados).length > 0) {
+
+        if(Object.keys(novosDados).length > 0) {
             await produtosRepository.atualizar(
-                produto.idProduto,
-                novosDados
+                produto.idProduto, novosDados
             );
         }
 
         // Se recebeu uma nova foto, substitui a antiga
-        if (arquivo) {
+        if(arquivo){
             await salvarFoto(produto, arquivo);
-        } else if (
+
+        } else if(
             dados.removerFoto === "true" ||
             dados.removerFoto === true
-        ) {
-            await removerFoto(produto);
-        }
+
+        ) { await removerFoto(produto); }
 
         return await buscarPorId(produto.idProduto);
 
-    } catch (erro) {
-        if (erro.name === "SequelizeUniqueConstraintError") {
+    } catch(erro){
+        if(erro.name === "SequelizeUniqueConstraintError"){
             throw criarErro(409, "Já existe um produto com esse nome.");
         }
 
@@ -489,8 +457,7 @@ async function atualizar(id, dados, arquivo = null) {
     }
 }
 
-// Busca a composição de um produto
-async function buscarComponentes(id) {
+async function buscarComponentes(id){
     const produto = await verificarProduto(id);
 
     const componentes = await produtosRepository.buscarComponentes(
@@ -506,12 +473,12 @@ async function buscarComponentes(id) {
 }
 
 // Verifica se uma composição criaria um ciclo entre produtos
-async function existeCaminhoAte(origem, destino, visitados = []) {
-    if (origem === destino) {
+async function existeCaminhoAte(origem, destino, visitados = []){
+    if(origem === destino){
         return true;
     }
 
-    if (visitados.includes(origem)) {
+    if(visitados.includes(origem)){
         return false;
     }
 
@@ -519,57 +486,48 @@ async function existeCaminhoAte(origem, destino, visitados = []) {
 
     const componentes = await produtosRepository.buscarComponentes(origem);
 
-    for (const item of componentes) {
+    for (const item of componentes){
         const encontrou = await existeCaminhoAte(
-            item.idProdutoComponente,
-            destino,
-            visitados
+            item.idProdutoComponente, destino, visitados
         );
 
-        if (encontrou) {
-            return true;
-        }
+        if(encontrou) return true;
     }
 
     return false;
 }
 
-// Cadastra ou substitui a composição de um produto
-async function atualizarComposicao(id, dados) {
+async function atualizarComposicao(id, dados){
     const produto = await verificarProduto(id);
 
-    if (!dados || !Array.isArray(dados.componentes)) {
+    if(!dados || !Array.isArray(dados.componentes)){
         throw criarErro(400, "Envie uma lista de componentes.");
     }
 
-    if (dados.componentes.length > 50) {
+    if(dados.componentes.length > 50){
         throw criarErro(400, "Um produto pode ter no máximo 50 componentes.");
     }
 
     const novosComponentes = [];
     const idsInformados = [];
 
-    // Valida cada componente enviado
-    for (const item of dados.componentes) {
-        if (!item || typeof item !== "object") 
-            throw criarErro(400, "Componente inválido.");
+    for (const item of dados.componentes){
+
+        if(!item || typeof item !== "object") throw criarErro(400, "Componente inválido.");
 
         const idComponente = validarId(
-            item.idProduto,
-            "Identificador de componente inválido."
+            item.idProduto, "Identificador de componente inválido."
         );
 
         const quantidade = validarNumeroInteiro(
-            item.quantidade,
-            "A quantidade",
-            1
+            item.quantidade,"A quantidade", 1
         );
 
-        if (idComponente === produto.idProduto) {
+        if(idComponente === produto.idProduto){
             throw criarErro(400, "Um produto não pode ser componente de si mesmo.");
         }
 
-        if (idsInformados.includes(idComponente)) {
+        if(idsInformados.includes(idComponente)){
             throw criarErro(400, "O mesmo componente não pode ser informado duas vezes.");
         }
 
@@ -583,20 +541,19 @@ async function atualizarComposicao(id, dados) {
     }
 
     // Verifica se todos os produtos componentes existem
-    if (idsInformados.length > 0) {
+    if(idsInformados.length > 0){
         const produtosExistentes = await produtosRepository.buscarProdutosExistentes(
             idsInformados
         );
 
-        if (produtosExistentes.length !== idsInformados.length) {
+        if(produtosExistentes.length !== idsInformados.length){
             throw criarErro(400, "Um ou mais produtos componentes não existem.");
         }
 
         // Verifica se a composição não cria ciclos
         for (const idComponente of idsInformados) {
             const criaCiclo = await existeCaminhoAte(
-                idComponente,
-                produto.idProduto
+                idComponente, produto.idProduto
             );
 
             if (criaCiclo) {
@@ -605,27 +562,22 @@ async function atualizarComposicao(id, dados) {
         }
     }
 
-    // Inicia uma transação para substituir a composição
     const transaction = await sequelize.transaction();
 
     try {
-        // Remove a composição antiga
         await produtosRepository.excluirComposicao(
-            produto.idProduto,
-            transaction
+            produto.idProduto,transaction
         );
 
-        // Insere a nova composição
-        if (novosComponentes.length > 0) {
+        if(novosComponentes.length > 0){
             await produtosRepository.inserirComposicao(
-                novosComponentes,
-                transaction
+                novosComponentes, transaction
             );
         }
 
         await transaction.commit();
 
-    } catch (erro) {
+    } catch(erro){
         await transaction.rollback();
         throw erro;
     }
@@ -634,42 +586,37 @@ async function atualizarComposicao(id, dados) {
 }
 
 // Expande a composição até encontrar os produtos finais
-async function expandirComposicao(idProduto, quantidade = 1) {
+async function expandirComposicao(idProduto, quantidade = 1){
     const id = validarId(
-        idProduto,
-        "Identificador de produto inválido."
+        idProduto, "Identificador de produto inválido."
     );
 
     const qtd = validarNumeroInteiro(
-        quantidade,
-        "A quantidade",
-        1
+        quantidade, "A quantidade",1
     );
 
     await verificarProduto(id);
 
     const produtosFinais = [];
 
-    // Percorre a composição de forma recursiva
-    async function percorrer(idAtual, quantidadeAtual, caminho = []) {
-        if (caminho.includes(idAtual)) {
+    async function percorrer(idAtual, quantidadeAtual, caminho = []){
+        if(caminho.includes(idAtual)){
             throw criarErro(409, "Foi encontrada uma composição cíclica.");
         }
 
         const componentes = await produtosRepository.buscarComponentes(idAtual);
 
-        // Se não possui componentes, é um produto final
-        if (componentes.length === 0) {
+        if(componentes.length === 0){
             const produtoExistente = produtosFinais.find(
                 (item) => item.idProduto === idAtual
             );
 
-            if (produtoExistente) {
+            if(produtoExistente){
                 produtoExistente.quantidade += quantidadeAtual;
-            } else {
+
+            } else{
                 produtosFinais.push({
-                    idProduto: idAtual,
-                    quantidade: quantidadeAtual
+                    idProduto: idAtual, quantidade: quantidadeAtual
                 });
             }
 
@@ -678,11 +625,10 @@ async function expandirComposicao(idProduto, quantidade = 1) {
 
         const novoCaminho = [...caminho, idAtual];
 
-        for (const item of componentes) {
+        for (const item of componentes){
             await percorrer(
                 item.idProdutoComponente,
-                quantidadeAtual * item.quantidade,
-                novoCaminho
+                quantidadeAtual * item.quantidade, novoCaminho
             );
         }
     }
@@ -692,72 +638,60 @@ async function expandirComposicao(idProduto, quantidade = 1) {
     return produtosFinais;
 }
 
-// Exclui um produto
-async function deletar(id) {
+async function deletar(id){
     const produto = await verificarProduto(id);
 
-    // Verifica se outro produto utiliza este como componente
     const produtosQueUtilizam = await produtosRepository.buscarProdutosQueUtilizam(
         produto.idProduto
     );
 
-    if (produtosQueUtilizam.length > 0) {
+    if(produtosQueUtilizam.length > 0){
         throw criarErro(
-            409,
-            "Não é possível excluir este produto porque ele é componente de outro produto."
+            409, "Não é possível excluir este produto porque ele é componente de outro produto."
         );
     }
 
-    // Verifica se existem vínculos com pedidos ou entradas de estoque
     const vinculos = await produtosRepository.contarVinculosProduto(
         produto.idProduto
     );
 
-    if (vinculos.itensPedido || vinculos.itensEntrada) {
+    if(vinculos.itensPedido || vinculos.itensEntrada){
         throw criarErro(
-            409,
-            "Não é possível excluir este produto porque ele está vinculado a pedidos ou entradas de estoque."
+            409, "Não é possível excluir este produto porque ele está vinculado a pedidos ou entradas de estoque."
         );
     }
 
     const transaction = await sequelize.transaction();
 
     try {
-        // Remove a composição do produto
         await produtosRepository.excluirComposicao(
-            produto.idProduto,
-            transaction
+            produto.idProduto, transaction
         );
 
-        // Exclui o produto
         await produtosRepository.excluirProduto(
-            produto.idProduto,
-            transaction
+            produto.idProduto, transaction
         );
 
         await transaction.commit();
 
-    } catch (erro) {
+    } catch(erro){
         await transaction.rollback();
 
-        if (erro.name === "SequelizeForeignKeyConstraintError") {
+        if(erro.name === "SequelizeForeignKeyConstraintError"){
             throw criarErro(
-                409,
-                "Não é possível excluir este produto porque ele possui vínculos com outros registros."
+                409, "Não é possível excluir este produto porque ele possui vínculos com outros registros."
             );
         }
-
         throw erro;
     }
 
-    // Remove a foto do produto, se existir
-    if (produto.foto) {
+    if(produto.foto){
         const caminho = extrairCaminho(produto.foto);
 
-        if (caminho) {
+        if(caminho){
             try {
                 await removerArquivo(caminho);
-            } catch (erro) {
+            } catch(erro){
                 console.log("Não foi possível remover a foto:", erro.message);
             }
         }
@@ -766,7 +700,6 @@ async function deletar(id) {
     return produto;
 }
 
-// Funções utilizadas pelo controller e por outros módulos
 module.exports = {
     listar,
     buscarPorId,

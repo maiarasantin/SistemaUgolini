@@ -9,7 +9,6 @@ const router = express.Router();
 
 router.use(requirePerfil("admin", "vendedor"));
 
-// memoryStorage: o arquivo fica na memória só até ser enviado ao Supabase.
 const upload = multer({
     storage: multer.memoryStorage(),
     limits: { fileSize: 5 * 1024 * 1024, files: 1 }, // máximo 5 MB, 1 arquivo
@@ -25,19 +24,25 @@ function receberFoto(req, res, next) {
     });
 }
 
-// GET /produtos?busca=...&idCategoria=...&idSubcategoria=...&estoque=...
+// GET /produtos
 router.get("/", produtosController.listar);
 
-router.get("/:id/composicao", produtosController.buscarComponentes);
-
-router.put("/:id/composicao", produtosController.atualizarComposicao);
-
+// GET /produtos/:id
 router.get("/:id", produtosController.buscarPorId);
 
+// POST /produtos
 router.post("/", receberFoto, produtosController.criar);
 
+// GET /produtos/:id/composicao
+router.get("/:id/composicao", produtosController.buscarComponentes);
+
+// PUT /produtos/:id/composicao
+router.put("/:id/composicao", produtosController.atualizarComposicao);
+
+// PUT /produtos/:id
 router.put("/:id", receberFoto, produtosController.atualizar);
 
+// DELETE /produtos/:id
 router.delete("/:id", produtosController.deletar);
 
 module.exports = router;
