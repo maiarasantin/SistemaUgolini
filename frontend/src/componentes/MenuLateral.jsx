@@ -26,7 +26,9 @@ export default function MenuLateral({ paginaAtual, aoSelecionar, perfil , aberto
             component="nav"
             sx={{
                 width: 240,
-                minHeight: "100vh",
+                height: "100vh",
+                overflowY: "auto",
+                boxSizing: "border-box",
                 backgroundColor: "#2f5a45",
                 color: "#fff",
                 p: 2,
@@ -79,7 +81,8 @@ export default function MenuLateral({ paginaAtual, aoSelecionar, perfil , aberto
             </Drawer>
 
             {/* Em telas grandes o menu fixo de sempre */}
-            <Box sx={{ display: { xs: "none", md: "block" } }}>
+            <Box sx={{ display: { xs: "none", md: "block" }, 
+                       position: "sticky", top: 0, height: "100vh", alignSelf: "flex-start" }}>
                 {conteudo}
             </Box>
         </>
