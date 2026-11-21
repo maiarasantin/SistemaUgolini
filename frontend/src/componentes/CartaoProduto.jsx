@@ -6,26 +6,21 @@ import LocalFloristOutlinedIcon from "@mui/icons-material/LocalFloristOutlined";
 const VERDE = "#2f5a45";
 const MARROM = "#7a6a4a";
 
-// Cores do "quadrado" que aparece quando o produto não tem foto.
-// Cada produto usa uma cor da lista, de acordo com o id dele.
+// Cores da imagem do quadrado que aparece quando o produto não tem foto
 const CORES_SEM_FOTO = ["#e48a5f", "#dbe8dd", "#385b49", "#7a6a4a"];
 
-// Ícone da flor: precisa ser claro em fundo escuro e escuro em fundo claro.
+// Icone da flor
 const CORES_ICONE = ["#2f5a45", "#2f5a45", "#2f5a45", "#2f5a45"];
 
-// Mostra UM produto do catálogo: foto, categoria, subcategoria, nome, descrição e preço.
-// Recebe o produto pronto (do GET /produtos) e só desenha, sem buscar nada.
-export default function CartaoProduto({ produto }) {
-
-    // Se a imagem não carregar (link quebrado), mostramos o quadrado colorido no lugar.
+export default function CartaoProduto({ produto }){
     const [fotoQuebrada, setFotoQuebrada] = useState(false);
 
-    // O produto pode não ter subcategoria (ex.: "Papel kraft"): nesse caso mostramos "—".
     let nomeCategoria = "—";
     let nomeSubcategoria = "—";
-    if (produto.subcategoria) {
+    if(produto.subcategoria){
         nomeSubcategoria = produto.subcategoria.nome;
-        if (produto.subcategoria.categoria) {
+
+        if(produto.subcategoria.categoria){
             nomeCategoria = produto.subcategoria.categoria.nome;
         }
     }
@@ -39,7 +34,7 @@ export default function CartaoProduto({ produto }) {
         currency: "BRL",
     });
 
-    // O backend só manda quantidadeEstoque se o campo estiver na lista "attributes" do repository.
+    // O backend só manda quantidadeEstoque se o campo estiver na lista "attributes" do repository
     const semEstoque = produto.quantidadeEstoque === 0;
 
     return (
@@ -51,21 +46,27 @@ export default function CartaoProduto({ produto }) {
                 bgcolor: "#fffdf8",
                 display: "flex",
                 flexDirection: "column",
+                width: "100%",
+                maxWidth: 360,
             }}
         >
-            {/* Parte de cima: a foto (ou o quadrado colorido com a flor) */}
-            <Box sx={{ position: "relative", height: 130 }}>
+            {/* Parte da imagem, a altura acompanha a largura (proporção 4 por 3),
+                para a imgem não ficar esticada e nem achatada */}
+            <Box sx={{ position: "relative", width: "100%", aspectRatio: "4 / 3", overflow: "hidden" }}>
                 {temFoto ? (
                     <Box
                         component="img"
                         src={produto.foto}
                         alt={produto.nome}
                         onError={() => setFotoQuebrada(true)}
-                        sx={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                        sx={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", objectFit: "cover" }}
                     />
                 ) : (
                     <Box
                         sx={{
+                            position: "absolute",
+                            top: 0,
+                            left: 0,
                             width: "100%",
                             height: "100%",
                             bgcolor: CORES_SEM_FOTO[posicaoCor],
@@ -99,10 +100,10 @@ export default function CartaoProduto({ produto }) {
                 )}
             </Box>
 
-            {/* Parte de baixo: os textos */}
+            {/* Parte dos textos */}
             <Box sx={{ p: 2, display: "flex", flexDirection: "column", gap: 1, flexGrow: 1 }}>
 
-                {/* Linha com a categoria (etiqueta marrom) e a subcategoria (texto pequeno) */}
+                {/* Linha com a categoria e a subcategoria */}
                 <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 1 }}>
                     <Box
                         sx={{
@@ -126,7 +127,7 @@ export default function CartaoProduto({ produto }) {
                     {produto.nome}
                 </Typography>
 
-                {/* A descrição ocupa no máximo 2 linhas; o que passar vira "..." */}
+                {/* A descrição ocupa no máximo 2 linhas, o que passar vira "..."*/}
                 <Typography
                     variant="body2"
                     color="text.secondary"
