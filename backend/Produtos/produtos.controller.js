@@ -57,7 +57,7 @@ async function deletar(req, res){
 
 async function buscarComponentes(req, res){
     try{
-        const composicao = await produtosService.buscarComposicao(req.params.id);
+        const composicao = await produtosService.buscarComponentes(req.params.id);
         return res.status(200).json(composicao);
     } catch(erro){
         return responderErro(res, erro);

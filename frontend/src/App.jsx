@@ -105,7 +105,7 @@ export default function App() {
                 } else {
                     setPaginaAtual("catalogo");
                 }
-            } catch (error) {
+            } catch {
                 localStorage.removeItem("token"); // Apaga o token
                 aplicarToken(null); // Tira o token do axios
                 setIsLoggedIn(false);  

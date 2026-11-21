@@ -69,7 +69,8 @@ async function listar({ busca, idCategoria, idSubcategoria, estoque, ordenarPor 
             "preco",
             "foto",
             "unidadeMedida",
-            "idSubcategoria"
+            "idSubcategoria",
+            "quantidadeEstoque"
             
         ], where,include, order: [
             ...ordenacoes[ordenarPor],
@@ -155,7 +156,7 @@ async function contarVinculosProduto(idProduto){
         ItemPedido.count({ where: { idProduto } }),
         ItemInputEstoque.count({ where: { idProduto } }),
     ]);
-    
+
     return { itensPedido, itensEntrada };
 }
 

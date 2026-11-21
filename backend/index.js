@@ -8,7 +8,7 @@ const cors = require("cors");
 const passport = require("passport");
 
 // Traz a função que ensina o Passport a ler tokens JWT.
-const { configureJwtStrategy ,requirePerfil} = require("./Auth/auth.config");
+const { configureJwtStrategy } = require("./Auth/auth.config");
 const authRouter = require("./Auth/auth.router");
 
 const categoriasRoutes = require("./Categorias/categorias.router");
