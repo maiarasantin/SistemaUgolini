@@ -52,8 +52,8 @@ export default function BarraSuperior({
       <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
         <Avatar
           sx={{
-            bgcolor: "#dbe8dd",
-            color: "#2f5a45",
+            bgcolor: "#e9950f",
+            color: "#fff",
             width: 36,
             height: 36,
             fontSize: 14,
@@ -76,7 +76,7 @@ export default function BarraSuperior({
         <Button
           onClick={aoSair}
           startIcon={<LogoutOutlined />}
-          sx={{ color: "#2f5a45" }}
+          sx={{ color: "#e91111" }}
         >
           Sair
         </Button>
