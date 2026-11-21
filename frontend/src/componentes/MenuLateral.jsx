@@ -8,9 +8,6 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import Drawer from "@mui/material/Drawer"; // Drawer é a gaveta que desliza por cima da tela usada pra responsividade
 
 
-
-
-// ---------- COMPONENTE ----------
 // Recebe cinco props do App:
 //   paginaAtual = qual página está aberta (pra destacar o item certo)
 //   aoSelecionar  = função que o menu chama quando alguém clica num item
@@ -20,7 +17,8 @@ export default function MenuLateral({ paginaAtual, aoSelecionar, perfil , aberto
 
     const itensVisiveis = ITENS.filter((item) => item.perfis.includes(perfil)); // Só os itens que o perfil pode ver
 
-    // O conteúdo do menu virou uma variável para ser usado dentro da gaveta de responsividade em caso de celular e no menu fixo para tela grande
+    // O conteúdo do menu virou uma variável para ser usado dentro 
+    // da gaveta de responsividade em caso de celular e no menu fixo para tela grande
     const conteudo = (
         <Box
             component="nav"
@@ -47,15 +45,20 @@ export default function MenuLateral({ paginaAtual, aoSelecionar, perfil , aberto
                     <ListItemButton //uma linha no menu, clicável
                         key={item.id}
                         selected={paginaAtual === item.id}
-                        onClick={() => { aoSelecionar(item.id); aoFechar(); }} //Troca de pagina e fehca a gaveta de responsividade em celulares
+                        onClick={() => { 
+                          aoSelecionar(item.id); 
+                          aoFechar(); 
+                        }} //Troca de pagina e fehca a gaveta de responsividade em celulares
                         sx={{
                             borderRadius: 2,
                             mb: 0.5,
 
 
                             "&:hover": { backgroundColor: "#3d6e56" },   // quando o mouse está em cima: verde um pouco mais claro
-                            "&.Mui-selected": { backgroundColor: "#dbe8dd", color: "#2f5a45" },  // quando está selecionado (página aberta): fundo claro e texto verde
-                            "&.Mui-selected:hover": { backgroundColor: "#dbe8dd" },   // selecionado + mouse em cima: mantém a cor 
+                            "&.Mui-selected": { 
+                              backgroundColor: "#dbe8dd",
+                                color: "#2f5a45" },
+                            "&.Mui-selected:hover": { backgroundColor: "#dbe8dd" }, 
                         }}
                     >
                         <ListItemIcon sx={{ color: "inherit", minWidth: 40 }}>
@@ -77,7 +80,7 @@ export default function MenuLateral({ paginaAtual, aoSelecionar, perfil , aberto
                 onClose={aoFechar}
                 sx={{ display: { xs: "block", md: "none" } }}
             >
-                {conteudo}
+               {conteudo}
             </Drawer>
 
             {/* Em telas grandes o menu fixo de sempre */}

@@ -1,33 +1,23 @@
-// Funções de erro compartilhadas por todos os módulos 
+// Funções de erro compartilhadas por todos os módulos
 
+function criarErro(status, mensagem) {  //Usada pelo service quando alguma regra é quebrada
+ 
+  const erro = new Error(mensagem);
 
-// criarErro: cria um erro que carrega junto o código HTTP 
-// É usada no SERVICE quando uma regra é quebrada
-function criarErro(status, mensagem) {
-    
-    const erro = new Error(mensagem);
+  erro.status = status; // Coloca o código HTTP no erro, pra saber depois qual código devolver
 
-    // Gruda o código HTTP no erro, pra saber depois qual código devolver
-    erro.status = status;
-
-    // Devolve o erro pronto pra ser lançado com "throw".
-    return erro;
+  return erro; // Devolve o erro pronto pra ser lançado com "throw"
 }
 
+function responderErro(res, erro) { //Usada no controller para responder o usúario
 
-function responderErro(res, erro) {
-   
-    if (erro.status) {
-        return res.status(erro.status).json({ erro: erro.message });
-    }
+  if (erro.status) {
+    return res.status(erro.status).json({ erro: erro.message });
+  }
 
-   
+  console.error(erro); //Se não tem status é um erro inesperado então mostra os detalhes no terminal
 
-    //Se não tem status é um erro inesperado então só mostra os detalhes no terminal
-    console.error(erro);
-
-    // E manda ao usuário uma mensagem genérica sem detalhes técnicos
-    return res.status(500).json({ erro: "Erro interno do servidor." });
+  return res.status(500).json({ erro: "Erro interno do servidor." });
 }
 
 module.exports = { criarErro, responderErro };

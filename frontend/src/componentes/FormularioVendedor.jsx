@@ -2,13 +2,12 @@ import { useState } from "react";
 import axios from "axios";
 import Alert from "@mui/material/Alert";
 import { pegarMensagemErro } from "../utils/mensagemErro";
-import { formatarCpf, formatarTelefone , somenteNumeros } from "../utils/formatacao";
+import { formatarCpf, formatarTelefone } from "../utils/formatacao";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import MenuItem from "@mui/material/MenuItem";
-
 
 const VERDE = "#2f5a45";
 
@@ -23,14 +22,12 @@ const DADOS_VAZIOS = {
   confirmarSenha: "",
 };
 
+function FormularioVendedor({ vendedor, aoCancelar, aoSalvar }) {
+  // Vendedor: se for null é cadastro novo; se tiver um vendedor é edição
 
+  let dadosIniciais = DADOS_VAZIOS;
 
-function FormularioVendedor({ vendedor, aoCancelar, aoSalvar }) {  // vendedor: se for null é cadastro novo; se tiver um vendedor é edição
-
-
-    let dadosIniciais = DADOS_VAZIOS;
-
-     if (vendedor) {
+  if (vendedor) {
     dadosIniciais = {
       nome: vendedor.nome || "",
       cpf: formatarCpf(vendedor.cpf),
@@ -43,22 +40,22 @@ function FormularioVendedor({ vendedor, aoCancelar, aoSalvar }) {  // vendedor: 
     };
   }
 
-
-
   const [dados, setDados] = useState(dadosIniciais);
 
   const [erro, setErro] = useState("");
-  
+
   const [salvando, setSalvando] = useState(false); // true enquanto o envio está acontecendo (evita clicar duas vezes)
 
-  // Chamada a cada tecla digitada em qualquer campo.
+
+
+  // Chamada a cada tecla digitada em qualquer campo
   function mudarCampo(evento) {
-    setDados({ ...dados, [evento.target.name]: evento.target.value }); // evento.target.name é o campo que mudou e evento.target.value é o texto dele
-    // O ...dados copia o que já estava
+    setDados({ ...dados, [evento.target.name]: evento.target.value });
   }
 
 
-    
+
+
   function validar() {
     if (dados.senha !== dados.confirmarSenha) {
       return "As senhas não conferem.";
@@ -68,9 +65,9 @@ function FormularioVendedor({ vendedor, aoCancelar, aoSalvar }) {  // vendedor: 
   }
 
 
+
   // Chamada ao clicar em Salvar
   async function salvar() {
-    
     const problema = validar();
     if (problema !== "") {
       setErro(problema);
@@ -80,7 +77,7 @@ function FormularioVendedor({ vendedor, aoCancelar, aoSalvar }) {  // vendedor: 
     setSalvando(true);
     setErro("");
 
-     // Monta o que vai para o back.
+    // Monta o que vai para o back
     const corpo = {
       nome: dados.nome,
       cpf: dados.cpf,
@@ -107,23 +104,7 @@ function FormularioVendedor({ vendedor, aoCancelar, aoSalvar }) {  // vendedor: 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  // Textos da tela mudam conforme o modo, tem o cadastro novo e a edição
+  // Textos da tela mudam conforme o modo: cadastro novo e edição
   let titulo = "Novo vendedor";
   let textoBotao = "Salvar";
   let dicaSenha = "Mínimo de 8 caracteres.";
@@ -134,6 +115,8 @@ function FormularioVendedor({ vendedor, aoCancelar, aoSalvar }) {  // vendedor: 
     dicaSenha = "Deixe em branco para manter a senha atual.";
   }
 
+
+  
   return (
     <Box>
       {/* Cabeçalho */}
@@ -160,16 +143,14 @@ function FormularioVendedor({ vendedor, aoCancelar, aoSalvar }) {  // vendedor: 
           p: { xs: 2, sm: 3 },
         }}
       >
-
-        {/* Se tiver erro: */}
+        {/* Mensagem de erro se houver */}
         {erro && (
           <Alert severity="error" sx={{ mb: 2 }}>
             {erro}
           </Alert>
         )}
 
-
-         {/* Campos do formulário */}
+        {/* Campos do formulário */}
         <Box
           sx={{
             display: "grid",
@@ -189,17 +170,17 @@ function FormularioVendedor({ vendedor, aoCancelar, aoSalvar }) {  // vendedor: 
           <TextField
             name="cpf"
             label="CPF"
-            placeholder="000.000.000-00"  //Texto cinza de exemplo, some quando começa a digitar
+            placeholder="000.000.000-00" //Texto cinza de exemplo, some quando começa a digitar
             value={dados.cpf}
             onChange={mudarCampo}
-            required // O asterisco de obrigatório
+            required // * de obrigatório
             fullWidth
           />
 
           <TextField
             name="telefone"
             label="Telefone/WhatsApp"
-            placeholder="(49) 99999-0000" 
+            placeholder="(49) 99999-0000"
             value={dados.telefone}
             onChange={mudarCampo}
             required
@@ -208,8 +189,8 @@ function FormularioVendedor({ vendedor, aoCancelar, aoSalvar }) {  // vendedor: 
 
           <TextField
             name="email"
-            label="E-mail" 
-            type="email"  // Para conferir se tem @ e abrir o teclado no celular
+            label="E-mail"
+            type="email"
             value={dados.email}
             onChange={mudarCampo}
             required
@@ -224,8 +205,7 @@ function FormularioVendedor({ vendedor, aoCancelar, aoSalvar }) {  // vendedor: 
             onChange={mudarCampo}
             required
             fullWidth
-            slotProps={{ inputLabel: { shrink: true } }} // mantém o texto "Data de contratação" sempre em cima do campo, sem isso ele ficaria em cima do "dd/mm/aaaa" quando a data está vazia
-
+            slotProps={{ inputLabel: { shrink: true } }} // Mantém o texto "Data de contratação" sempre em cima do campo, sem isso ele ficaria em cima do "dd/mm/aaaa" quando a data está vazia
           />
 
           {/* select vira uma caixinha de escolha */}
@@ -241,11 +221,10 @@ function FormularioVendedor({ vendedor, aoCancelar, aoSalvar }) {  // vendedor: 
             <MenuItem value="inativo">Inativo</MenuItem>
           </TextField>
 
-        
           <TextField
             name="senha"
             label="Senha"
-            type="password"  // Esconde o que é digitado com bolinhas
+            type="password" // Esconde o que é digitado com bolinhas
             value={dados.senha}
             onChange={mudarCampo}
             required={!vendedor}
@@ -257,24 +236,25 @@ function FormularioVendedor({ vendedor, aoCancelar, aoSalvar }) {  // vendedor: 
           <TextField
             name="confirmarSenha"
             label="Confirmar senha"
-            type="password" 
+            type="password"
             value={dados.confirmarSenha}
             onChange={mudarCampo}
             required={!vendedor}
-            helperText={dicaSenha} //Texto pequeno embaixo do campo
+            helperText={dicaSenha} // Texto pequeno embaixo do campo
             autoComplete="new-password"
             fullWidth
           />
         </Box>
 
-
         {/* Botões */}
-        <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1, mt: 3 }}>
+        <Box
+          sx={{ display: "flex", justifyContent: "flex-end", gap: 1, mt: 3 }}
+        >
           <Button onClick={aoCancelar} sx={{ color: VERDE }}>
             Cancelar
           </Button>
 
-         <Button
+          <Button
             variant="contained"
             onClick={salvar}
             disabled={salvando}

@@ -1,19 +1,13 @@
 const Funcionario = require("../database/models/funcionario.model");
 
+// Usada pelo service no login
 async function buscarPorEmail(email) {
-    return Funcionario.findOne({ where: { email } });
+  return Funcionario.findOne({ where: { email } });
 }
 
-async function buscarPorCpf(cpf) {
-    return Funcionario.findOne({ where: { cpf } });
-}
-
+// Usada pelo config para saber de quem é o token
 async function buscarPorId(id) {
-    return Funcionario.findByPk(id);
+  return Funcionario.findByPk(id);
 }
 
-async function criar(dados) {
-    return Funcionario.create(dados);
-}
-
-module.exports = { buscarPorEmail, buscarPorCpf, buscarPorId, criar };
+module.exports = { buscarPorEmail, buscarPorId };
