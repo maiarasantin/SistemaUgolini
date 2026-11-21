@@ -9,7 +9,7 @@ import { pegarMensagemErro } from "../utils/mensagemErro.js";
 
 const VERDE = "#2f5a45";
 
-export default function FormCategoria({ categoria, aoCancelar, aoSalvar }) {
+export default function FormCategoria({ categoria, aoCancelar, aoSalvar }){
 
     // Se estamos editando, "categoria" não é null.
     const editando = categoria !== null;
@@ -18,8 +18,7 @@ export default function FormCategoria({ categoria, aoCancelar, aoSalvar }) {
     const [erro, setErro] = useState("");
     const [salvando, setSalvando] = useState(false);
 
-    // ---------- FUNÇÃO QUE RODA AO CLICAR EM SALVAR ----------
-    async function salvar(event) {
+    async function salvar(event){
         event.preventDefault();
 
         setErro("");
@@ -32,21 +31,22 @@ export default function FormCategoria({ categoria, aoCancelar, aoSalvar }) {
         setSalvando(true);
 
         try {
-            if (editando) {
+            if(editando){
                 await axios.put(`/categorias/${categoria.idCategoria}`, { nome: nome });
                 aoSalvar("Categoria atualizada com sucesso.");
-            } else {
+
+            } else{
                 await axios.post("/categorias", { nome: nome });
                 aoSalvar("Categoria criada com sucesso.");
             }
-        } catch (error) {
+        } catch(error){
             setErro(pegarMensagemErro(error));
+
         } finally {
             setSalvando(false);
         }
     }
 
-    // ---------- O QUE APARECE NA TELA ----------
     return (
         <Box>
             {/* Cabeçalho da página */}
@@ -91,7 +91,7 @@ export default function FormCategoria({ categoria, aoCancelar, aoSalvar }) {
                     disabled={salvando}
                 />
 
-                {/* linha com os dois botões, alinhados à direita */}
+                {/* Botões alinhados à direita */}
                 <Box
                     sx={{
                         display: "flex",

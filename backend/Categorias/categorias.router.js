@@ -6,7 +6,7 @@ const router = express.Router();
 
 router.use(requirePerfil("admin", "vendedor"));
 
-// GET /categorias?busca=&possuiSubcategorias=&ordenarPor=&direcao=
+// GET /categorias
 router.get("/", categoriasController.listar);
 
 // GET /categorias/:id

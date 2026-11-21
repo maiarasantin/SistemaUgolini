@@ -105,7 +105,6 @@ export default function CartaoCategoria({
                     </Typography>
                 )}
 
-                {/* .map = para CADA subcategoria */}
                 {subcategorias.map((subcategoria) => (
                     <Box
                         key={subcategoria.idSubcategoria}

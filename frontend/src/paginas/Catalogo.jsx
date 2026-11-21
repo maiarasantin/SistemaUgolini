@@ -14,22 +14,19 @@ import { pegarMensagemErro } from "../utils/mensagemErro.js";
 
 const VERDE = "#2f5a45";
 
-// Valor usado nos selects para dizer "sem filtro" (o MenuItem precisa de um valor).
+// Valor usado nos selects para dizer "sem filtro"
 const TODAS = "todas";
 
-function Catalogo() {
+function Catalogo(){
 
-    // DADOS QUE VÊM DO BACKEND
     const [produtos, setProdutos] = useState([]);
     const [categorias, setCategorias] = useState([]);
     const [subcategorias, setSubcategorias] = useState([]);
 
-    // ESTADO DA TELA
     const [carregando, setCarregando] = useState(true);
     const [erroCarregar, setErroCarregar] = useState("");
     const [erroFiltros, setErroFiltros] = useState("");
 
-    // FILTROS E ORDENAÇÃO (cada um vira um parâmetro do GET /produtos)
     const [busca, setBusca] = useState("");
     const [idCategoria, setIdCategoria] = useState(TODAS);
     const [idSubcategoria, setIdSubcategoria] = useState(TODAS);
@@ -37,12 +34,12 @@ function Catalogo() {
     const [ordenarPor, setOrdenarPor] = useState("nome"); // "nome" ou "preco"
     const [direcao, setDirecao] = useState("ASC");        // "ASC" ou "DESC"
 
-    // Contador para o botão "Tentar novamente" buscar tudo de novo.
+    // Contador para o botão "Tentar novamente" buscar tudo de novo
     const [contadorRecarga, setContadorRecarga] = useState(0);
 
-    // 1) Busca as categorias e subcategorias UMA vez, só para preencher os selects.
+    // Busca as categorias e subcategorias UMA vez, só para preencher os selects.
     useEffect(() => {
-        async function carregarFiltros() {
+        async function carregarFiltros(){
             try {
                 const [respostaCategorias, respostaSubcategorias] = await Promise.all([
                     axios.get("/categorias"),
@@ -52,23 +49,20 @@ function Catalogo() {
                 setCategorias(respostaCategorias.data.categorias);
                 setSubcategorias(respostaSubcategorias.data.subcategorias);
                 setErroFiltros("");
-            } catch (error) {
-                setErroFiltros(pegarMensagemErro(error));
+            } catch(erro){
+                setErroFiltros(pegarMensagemErro(erro));
             }
         }
 
         carregarFiltros();
     }, [contadorRecarga]);
 
-    // 2) Busca os produtos. Roda de novo SEMPRE que algum filtro mudar (a lista de baixo, [ ... ]).
+    // Busca os produtos
     useEffect(() => {
-        // "ativo" evita um bug: se a pessoa digita rápido, várias buscas saem juntas.
-        // Quando uma resposta antiga chega atrasada, ela é ignorada.
+        // "ativo" evita se a pessoa digita rápido e várias buscas sair juntas
         let ativo = true;
 
-        async function carregarProdutos() {
-            // Só manda o parâmetro quando a pessoa realmente escolheu algo.
-            // O axios ignora parâmetros com valor undefined.
+        async function carregarProdutos(){
             const params = {
                 busca: busca.trim() || undefined,
                 idCategoria: idCategoria === TODAS ? undefined : idCategoria,
@@ -81,30 +75,30 @@ function Catalogo() {
             try {
                 const resposta = await axios.get("/produtos", { params: params });
 
-                if (ativo) {
+                if(ativo){
                     setProdutos(resposta.data);
                     setErroCarregar("");
                 }
-            } catch (error) {
-                if (ativo) {
-                    setErroCarregar(pegarMensagemErro(error));
+            } catch(erro){
+
+                if(ativo){
+                    setErroCarregar(pegarMensagemErro(erro));
                 }
+
             } finally {
-                if (ativo) {
-                    setCarregando(false);
-                }
+                if(ativo) setCarregando(false);
             }
         }
 
         carregarProdutos();
 
-        // Roda quando o efeito é refeito: marca a busca antiga como "não vale mais".
         return () => {
             ativo = false;
         };
+
     }, [busca, idCategoria, idSubcategoria, estoque, ordenarPor, direcao, contadorRecarga]);
 
-    // Quando escolhe outra categoria, a subcategoria escolhida antes não vale mais.
+    // Quando escolhe outra categoria, a subcategoria escolhida antes não vale mais
     function mudarCategoria(novoId) {
         setIdCategoria(novoId);
         setIdSubcategoria(TODAS);
@@ -119,24 +113,23 @@ function Catalogo() {
         setDirecao("ASC");
     }
 
-    // O select de subcategorias só mostra as da categoria escolhida (ou todas, se não escolheu).
+    // O select de subcategorias só mostra as da categoria escolhida
     const subcategoriasDoSelect = subcategorias.filter(
         (sub) => idCategoria === TODAS || sub.idCategoria === idCategoria
     );
 
-    // Tem algum filtro ligado? (a ordenação não conta como filtro)
     const temFiltro =
         busca.trim() !== "" ||
         idCategoria !== TODAS ||
         idSubcategoria !== TODAS ||
         estoque !== TODAS;
 
-    // O QUE MOSTRAR EMBAIXO DOS FILTROS
     let conteudo;
 
-    if (carregando) {
+    if(carregando){
         conteudo = <Typography>Carregando produtos...</Typography>;
-    } else if (erroCarregar !== "") {
+
+    } else if(erroCarregar !== ""){
         conteudo = (
             <Alert
                 severity="error"
@@ -157,7 +150,8 @@ function Catalogo() {
                 {erroCarregar}
             </Alert>
         );
-    } else if (produtos.length === 0) {
+
+    } else if(produtos.length === 0){
         conteudo = (
             <Typography color="text.secondary">
                 {temFiltro
@@ -165,16 +159,14 @@ function Catalogo() {
                     : "Nenhum produto cadastrado ainda."}
             </Typography>
         );
-    } else {
+
+    } else{
         conteudo = (
             <Box
                 sx={{
                     display: "grid",
-                    gridTemplateColumns: {
-                        xs: "1fr",
-                        sm: "repeat(2, 1fr)",
-                        lg: "repeat(3, 1fr)",
-                    },
+                    // auto-fill: o navegador calcula quantas colunas cabem, para telas largas não esticar os quadradinhos
+                    gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 240px), 1fr))",
                     gap: 3,
                 }}
             >
@@ -187,7 +179,6 @@ function Catalogo() {
 
     return (
         <Box>
-            {/* Título da página */}
             <Box sx={{ mb: 3 }}>
                 <Typography variant="overline" color="text.secondary">
                     Floricultura Ugolini
@@ -213,7 +204,7 @@ function Catalogo() {
                     gap: 2,
                 }}
             >
-                {/* Linha 1: busca + categoria + subcategoria (igual ao protótipo) */}
+                {/* Busca + categoria + subcategoria */}
                 <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
                     <TextField
                         size="small"
@@ -263,7 +254,7 @@ function Catalogo() {
                     </TextField>
                 </Box>
 
-                {/* Linha 2: estoque + ordenação */}
+                {/* Estoque + ordenação */}
                 <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap", alignItems: "center" }}>
                     <TextField
                         select
@@ -308,7 +299,6 @@ function Catalogo() {
                         </Button>
                     )}
 
-                    {/* Quantos produtos apareceram (só quando a lista carregou sem erro) */}
                     {!carregando && erroCarregar === "" && (
                         <Typography variant="body2" color="text.secondary" sx={{ ml: "auto" }}>
                             {produtos.length === 1 ? "1 produto" : `${produtos.length} produtos`}
