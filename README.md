@@ -13,7 +13,7 @@ React | JavaScript | Material UI | Axios | Vite
 Node.js | Express | Sequelize | PostgreSQL | JWT (JSON Web Token) | Bcrypt | Superbase
 
 ## Configuração do banco de dados
-O projeto disponibiliza dois scripts SQL para preparar o banco de dados (em SistemaUgolini/database):
+O projeto disponibiliza dois scripts SQL para preparar o banco de dados (em SistemaUgolini/scripts):
 - criar_tabelas.sql: contém os comandos para a criação das tabelas, relacionamentos e restrições do banco de dados.
 - dados_iniciais.sql: contém os comandos para inserir os dados iniciais necessários para utilização do sistema.
 Execute os scripts na seguinte ordem:
