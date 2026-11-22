@@ -1,6 +1,7 @@
 # Sistema Ugolini
 
 Sistema para o gerenciamento de uma floricultura, permitindo o controle de produtos, clientes, funcionários, pedidos e estoque.
+
 O projeto foi desenvolvido como Trabalho Integrador do componente curricular Desenvolvimento de Sistema Web, do curso de Ciência da Computação da Universidade Federal da Fronteira Sul (UFFS).
 
 ## Tecnologias utilizadas
