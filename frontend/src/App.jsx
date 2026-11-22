@@ -147,7 +147,7 @@ export default function App() {
              aoAbrirMenu={() => setMenuAberto(true)}  /> {/*Abrir a barra do menu em celulares*/}
 
             <Box component="main" sx={{ p: 3 }}>
-                {paginaAtual === "catalogo" && <Catalogo />}
+                {paginaAtual === "catalogo" && (<Catalogo perfil={usuario.perfil} />)}
                 {paginaAtual === "clientes" && <Clientes />}
                 {paginaAtual === "categorias" && <Categorias />}
                 {paginaAtual === "vendedores" && <Vendedores />}

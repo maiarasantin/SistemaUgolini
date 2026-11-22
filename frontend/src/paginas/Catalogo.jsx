@@ -8,8 +8,8 @@ import MenuItem from "@mui/material/MenuItem";
 import Alert from "@mui/material/Alert";
 import InputAdornment from "@mui/material/InputAdornment";
 import SearchIcon from "@mui/icons-material/Search";
-
 import CartaoProduto from "../componentes/CartaoProduto";
+import CartaoContagem from "../componentes/CartaoContagem";
 import { pegarMensagemErro } from "../utils/mensagemErro.js";
 
 const VERDE = "#2f5a45";
@@ -17,11 +17,18 @@ const VERDE = "#2f5a45";
 // Valor usado nos selects para dizer "sem filtro"
 const TODAS = "todas";
 
-function Catalogo(){
+function Catalogo({ perfil }){
 
     const [produtos, setProdutos] = useState([]);
     const [categorias, setCategorias] = useState([]);
     const [subcategorias, setSubcategorias] = useState([]);
+
+    // Contagens utilizadas no dashboard
+    const [contagens, setContagens] = useState({
+        produtos: null,
+        semEstoque: null,
+        clientes: null,
+    });
 
     const [carregando, setCarregando] = useState(true);
     const [erroCarregar, setErroCarregar] = useState("");
@@ -34,12 +41,12 @@ function Catalogo(){
     const [ordenarPor, setOrdenarPor] = useState("nome"); // "nome" ou "preco"
     const [direcao, setDirecao] = useState("ASC");        // "ASC" ou "DESC"
 
-    // Contador para o botão "Tentar novamente" buscar tudo de novo
+    // Contador para o botão "Atualizar" buscar tudo de novo
     const [contadorRecarga, setContadorRecarga] = useState(0);
 
     // Busca as categorias e subcategorias UMA vez, só para preencher os selects.
     useEffect(() => {
-        async function carregarFiltros(){
+        async function carregarFiltros() {
             try {
                 const [respostaCategorias, respostaSubcategorias] = await Promise.all([
                     axios.get("/categorias"),
@@ -49,13 +56,76 @@ function Catalogo(){
                 setCategorias(respostaCategorias.data.categorias);
                 setSubcategorias(respostaSubcategorias.data.subcategorias);
                 setErroFiltros("");
-            } catch(erro){
+            } catch (erro) {
                 setErroFiltros(pegarMensagemErro(erro));
             }
         }
 
         carregarFiltros();
     }, [contadorRecarga]);
+
+    // Busca os dados das contagens do dashboard
+    useEffect(() => {
+        let ativo = true;
+
+        async function carregarContagens() {
+
+            // Busca todos os produtos
+            try {
+                const resposta = await axios.get("/produtos");
+
+                if(ativo){
+                    const todosProdutos = resposta.data;
+
+                    setContagens((anterior) => ({
+                        ...anterior,
+                        produtos: todosProdutos.length,
+                        semEstoque: todosProdutos.filter(
+                            (produto) => produto.quantidadeEstoque === 0
+                        ).length,
+                    }));
+                }
+            } catch(erro){
+
+                if(ativo){
+                    setContagens((anterior) => ({
+                        ...anterior,
+                        produtos: null,
+                        semEstoque: null,
+                    }));
+                }
+            }
+
+            // Clientes só podem ser consultados pelo vendedor
+            if(perfil === "vendedor"){
+                try {
+                    const respostaClientes = await axios.get("/clientes");
+
+                    if(ativo){
+                        setContagens((anterior) => ({
+                            ...anterior,
+                            clientes: respostaClientes.data.clientes.length,
+                        }));
+                    }
+                } catch(erro){
+
+                    if(ativo){
+                        setContagens((anterior) => ({
+                            ...anterior,
+                            clientes: null,
+                        }));
+                    }
+                }
+            }
+        }
+
+        carregarContagens();
+
+        return () => {
+            ativo = false;
+        };
+
+    }, [contadorRecarga, perfil]);
 
     // Busca os produtos
     useEffect(() => {
@@ -111,6 +181,20 @@ function Catalogo(){
         setEstoque(TODAS);
         setOrdenarPor("nome");
         setDirecao("ASC");
+    }
+
+    // Atualiza os dados do dashboard e do catálogo
+    function atualizarPainel(){
+        setContagens({
+            produtos: null,
+            semEstoque: null,
+            clientes: null,
+        });
+
+        setCarregando(true);
+        setErroCarregar("");
+
+        setContadorRecarga((anterior) => anterior + 1);
     }
 
     // O select de subcategorias só mostra as da categoria escolhida
@@ -179,15 +263,90 @@ function Catalogo(){
 
     return (
         <Box>
-            <Box sx={{ mb: 3 }}>
-                <Typography variant="overline" color="text.secondary">
-                    Floricultura Ugolini
-                </Typography>
-                <Typography variant="h4" component="h1" sx={{ color: VERDE }}>
+
+            {/* Cabeçalho do painel */}
+            <Box
+                sx={{
+                    mb: 3,
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: { xs: "flex-start", sm: "center" },
+                    flexDirection: { xs: "column", sm: "row" },
+                    gap: 2,
+                }}
+            >
+                <Box>
+                    <Typography variant="overline" color="text.secondary">
+                        Floricultura Ugolini
+                    </Typography>
+
+                    <Typography variant="h4" component="h1" sx={{ color: VERDE }}>
+                        Visão geral
+                    </Typography>
+
+                    <Typography color="text.secondary">
+                        Visão geral do sistema e catálogo de produtos para o atendimento.
+                    </Typography>
+                </Box>
+
+                <Button
+                    variant="outlined"
+                    onClick={atualizarPainel}
+                    sx={{
+                        color: VERDE,
+                        borderColor: VERDE,
+                        "&:hover": {
+                            borderColor: VERDE,
+                            bgcolor: "#dbe8dd",
+                        },
+                    }}
+                >
+                    Atualizar
+                </Button>
+            </Box>
+
+            {/* Dashboard com as contagens */}
+            <Box
+                sx={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 150px), 1fr))",
+                    gap: 2,
+                    mb: 3,
+                }}
+            >
+                <CartaoContagem
+                    titulo="Produtos"
+                    valor={contagens.produtos}
+                />
+
+                <CartaoContagem
+                    titulo="Categorias"
+                    valor={categorias.length}
+                />
+
+                <CartaoContagem
+                    titulo="Subcategorias"
+                    valor={subcategorias.length}
+                />
+
+                {perfil === "vendedor" && (
+                    <CartaoContagem
+                        titulo="Clientes"
+                        valor={contagens.clientes}
+                    />
+                )}
+
+                <CartaoContagem
+                    titulo="Sem estoque"
+                    valor={contagens.semEstoque}
+                    cor="#b3261e"
+                />
+            </Box>
+
+            {/* Título do catálogo */}
+            <Box sx={{ mb: 2 }}>
+                <Typography variant="h5" sx={{ color: VERDE }}>
                     Catálogo de produtos
-                </Typography>
-                <Typography color="text.secondary">
-                    Consulte os produtos disponíveis durante o atendimento.
                 </Typography>
             </Box>
 
@@ -298,12 +457,6 @@ function Catalogo(){
                             Limpar filtros
                         </Button>
                     )}
-
-                    {!carregando && erroCarregar === "" && (
-                        <Typography variant="body2" color="text.secondary" sx={{ ml: "auto" }}>
-                            {produtos.length === 1 ? "1 produto" : `${produtos.length} produtos`}
-                        </Typography>
-                    )}
                 </Box>
 
                 {erroFiltros !== "" && (
@@ -314,6 +467,7 @@ function Catalogo(){
             </Box>
 
             {conteudo}
+
         </Box>
     );
 }

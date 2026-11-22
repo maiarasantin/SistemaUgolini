@@ -15,7 +15,7 @@ import AssessmentOutlined from "@mui/icons-material/AssessmentOutlined";
 
 // Itens do menu. "id" é o nome da página
 export const ITENS = [
-    { id: "catalogo", texto: "Catálogo",  icone: <AssignmentOutlined /> , perfis: ["vendedor"]},
+    { id: "catalogo", texto: "Visão geral",  icone: <AssignmentOutlined /> , perfis: ["vendedor"]},
     { id: "novoPedido", texto: "Novo pedido",  icone: <EditOutlined />, perfis: ["vendedor"] },
     { id: "statusDosPedidos", texto: "Status dos pedidos", icone: <AccessTimeOutlined /> , perfis: ["vendedor"]},
     { id: "caixa", texto: "Caixa" , icone: <CreditCardOutlined />, perfis: ["vendedor"]},

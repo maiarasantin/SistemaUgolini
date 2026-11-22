@@ -10,18 +10,16 @@ const router = express.Router();
 
 router.use(requirePerfil("admin", "vendedor"));
 
-// memoryStorage: o arquivo fica na memória só até ser enviado ao Supabase.
+// memoryStorage: o arquivo fica na memória só até ser enviado ao Supabase
 const upload = multer({
     storage: multer.memoryStorage(),
-    limits: { fileSize: 5 * 1024 * 1024, files: 1 }, // máximo 5 MB, 1 arquivo
+    limits: { fileSize: 5 * 1024 * 1024, files: 1 },
 });
 
-// receberImagem: lê o campo "imagem" e, se der erro (ex.: arquivo grande demais),
-// responde 400 com mensagem clara em vez de erro interno.
-function receberImagem(req, res, next) {
+function receberImagem(req, res, next){
     upload.single("imagem")(req, res, (erro) => {
-        if (!erro) return next();
-        if (erro.code === "LIMIT_FILE_SIZE") {
+        if(!erro) return next();
+        if(erro.code === "LIMIT_FILE_SIZE"){
             return responderErro(res, criarErro(400, "Imagem muito grande. O limite é 5 MB."));
         }
         return responderErro(res, criarErro(400, "Não foi possível ler a imagem enviada."));
